@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون نقش‌های تیمی بلبین | کارگاه PMBOK® 8th - پیشرو مدیریت پیران (PMPiran)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Persian Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+                    },
+                    colors: {
+                        pmp: {
+                            navy: '#0B2447',
+                            blue: '#19376D',
+                            royal: '#0284C7',
+                            light: '#E0F2FE',
+                            gold: '#F59E0B',
+                            amber: '#D97706',
+                            accent: '#EA580C'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Vazirmatn', Tahoma, sans-serif; background-color: #f1f5f9; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        .pmp-gradient { background: linear-gradient(135deg, #0B2447 0%, #19376D 55%, #0369A1 100%); }
+        .gold-gradient { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .bar-transition { transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1), height 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
+        @media print { .no-print { display: none !important; } body { background: white !important; } }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 left-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Admin Password Modal (Protects Tab 2) -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="pmp-gradient text-white p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-user-shield text-pmp-gold text-xl"></i>
+                    <h3 class="font-bold text-lg">ورود به پنل ادمین (ویژه اساتید کارگاه)</h3>
+                </div>
+                <button onclick="closeAdminModal()" class="text-white/80 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <form onsubmit="verifyAdminPassword(event)" class="p-6 space-y-4">
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    تب دوم (دیتابیس تجمیعی شرکت‌کنندگان و تقسیم‌بندی تیم‌ها) فقط مخصوص اساتید است. لطفاً رمز عبور را وارد کنید:
+                </p>
+                <div>
+                    <label for="admin-pass-input" class="block text-xs font-bold text-slate-700 mb-1.5">رمز عبور پنل مدیریت:</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        <input type="password" id="admin-pass-input" dir="ltr" placeholder="••••••••" 
+                            class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal focus:ring-2 focus:ring-pmp-royal/20 outline-none text-center font-mono text-base tracking-widest">
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition">
+                        انصراف
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl gold-gradient text-white text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-unlock-keyhole"></i>
+                        <span>ورود به پنل مدیریت</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Top Branded Header (PMPiran) - Cleaned as requested -->
+    <header class="pmp-gradient text-white shadow-xl relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-lg flex flex-col items-center justify-center p-2 border-2 border-pmp-gold shrink-0">
+                        <span class="font-black text-lg tracking-tighter text-pmp-navy leading-none">PMP<span class="text-pmp-gold">iran</span></span>
+                        <span class="text-[9px] font-bold text-slate-500 mt-1">پیشرو مدیریت پیران</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">
+                            سامانه ارزیابی نقش‌های تیمی بلبین (Belbin Team Roles)
+                        </h1>
+                        <p class="text-xs sm:text-sm text-sky-100/90 mt-1">
+                            شرکت مهندسی مشاور پیشرو مدیریت پیران
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Navigation Tabs -->
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-4 no-print">
+                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <button id="tab-btn-1" onclick="switchTab(1)" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-pmp-gold text-slate-950 shadow-lg">
+                        <i class="fa-solid fa-pen-to-square text-base"></i>
+                        <span>تب ۱: تست بلبین و دریافت کارنامه شخصی</span>
+                    </button>
+                    <button id="tab-btn-2" onclick="requestAdminTab()" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-white/10 text-white hover:bg-white/20">
+                        <i id="tab2-lock-icon" class="fa-solid fa-lock text-amber-300 text-sm"></i>
+                        <span>تب ۲: پنل مدیریت اساتید</span>
+                        <span id="participants-badge" class="px-2 py-0.5 text-xs rounded-full bg-amber-400 text-slate-950 font-extrabold">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: STUDENT LOGIN & BELBIN TEST         -->
+        <!-- ========================================== -->
+        <section id="tab-content-1" class="space-y-6">
+
+            <!-- Student Post-Submission Personal Summary & Full Charts Card -->
+            <div id="student-completion-banner" class="hidden bg-white rounded-2xl shadow-xl border-2 border-emerald-500 overflow-hidden">
+                <!-- Populated dynamically with full charts and analysis -->
+            </div>
+
+            <!-- Step 1: Student Login / Profile Card (Name, Phone & Email mandatory) -->
+            <div id="student-login-card" class="bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-pmp-navy text-white font-bold flex items-center justify-center text-sm">۱</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base sm:text-lg">ورود اطلاعات شرکت‌کننده</h2>
+                            <p class="text-xs text-slate-500">برای شروع آزمون و دریافت کارنامه تحلیلی کامل، لطفاً اطلاعات زیر را تکمیل کنید.</p>
+                        </div>
+                    </div>
+                    <span class="text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-bold">
+                        * ورود نام، شماره موبایل و ایمیل الزامی است
+                    </span>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                        <div>
+                            <label for="student-name" class="block text-sm font-bold text-slate-700 mb-2">
+                                نام و نام خانوادگی <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text" id="student-name" placeholder="مثال: علی رضایی" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-slate-800 font-medium">
+                        </div>
+                        <div>
+                            <label for="student-phone" class="block text-sm font-bold text-slate-700 mb-2">
+                                شماره موبایل <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="tel" id="student-phone" dir="ltr" placeholder="09123456789" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-right font-mono text-slate-800">
+                        </div>
+                        <div>
+                            <label for="student-email" class="block text-sm font-bold text-slate-700 mb-2">
+                                ایمیل <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="email" id="student-email" dir="ltr" placeholder="example@email.com" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-right font-mono text-slate-800">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Progress Sticky Bar -->
+            <div class="sticky top-2 z-30 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="w-10 h-10 rounded-xl bg-pmp-navy text-white flex items-center justify-center font-bold shrink-0">
+                        <span id="completed-sections-count">0</span>/7
+                    </div>
+                    <div class="flex-1 sm:w-64">
+                        <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                            <span>پیشرفت تکمیل پرسشنامه</span>
+                            <span id="overall-points-text">0 از 70 امتیاز تخصیص یافته</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div id="overall-progress-bar" class="h-full bg-gradient-to-l from-pmp-gold to-emerald-500 bar-transition" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-pills" class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Step 2: The 7 Belbin Sections Container -->
+            <div id="questions-container" class="space-y-6">
+                <!-- Populated dynamically by JS -->
+            </div>
+
+            <!-- Submit Button Card -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">پایان پاسخ‌گویی و دریافت کارنامه شخصی</h3>
+                        <p class="text-xs text-slate-500">پس از تکمیل اطلاعات و تخصیص امتیازات، روی دکمه کلیک کنید.</p>
+                    </div>
+                </div>
+                <button onclick="submitBelbinTest()" class="w-full sm:w-auto px-8 py-4 rounded-xl gold-gradient text-white font-extrabold text-base shadow-lg hover:shadow-xl transition flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>ثبت آزمون و مشاهده کامل نمودارها و تحلیل‌ها</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: ADMIN PANEL & TEAM DIVISION         -->
+        <!-- ========================================== -->
+        <section id="tab-content-2" class="hidden space-y-6">
+
+            <!-- Admin Toolbar -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 no-print">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-user-shield"></i> پنل مدیریت اساتید
+                        </span>
+                        <h2 class="font-extrabold text-slate-800 text-lg">دیتابیس شرکت‌کنندگان و تقسیم‌بندی تیم‌ها</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">
+                        در این بخش فقط خلاصه اطلاعات، شماره تماس، ایمیل و نقش‌های قالب و پشتیبان نمایش داده می‌شود.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <button onclick="autoDivideIntoTwoGroups()" class="px-4 py-2.5 rounded-xl pmp-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-pmp-gold"></i>
+                        <span>چینش خودکار ۲ تیم (فقط اعضای تیک‌خورده)</span>
+                    </button>
+                    <button onclick="lockAdminPanel()" class="px-3 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>قفل ادمین</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database / Lead Table & Filter Box -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-base">دیتابیس جامع شرکت‌کنندگان (بدون تکرار)</h3>
+                        <p class="text-xs text-slate-500">لیست یکتا بر اساس ایمیل/شماره تماس</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
+                                <i class="fa-solid fa-search text-xs"></i>
+                            </span>
+                            <input type="text" id="db-search-input" oninput="renderAdminDatabaseTable()" placeholder="جستجوی نام یا شماره..." 
+                                class="w-full sm:w-64 pr-9 pl-3 py-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-pmp-royal">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-3.5 text-center w-12">ردیف</th>
+                                <th class="p-3.5 text-center w-16">عضو کارگاه</th>
+                                <th class="p-3.5">نام و نام خانوادگی</th>
+                                <th class="p-3.5">شماره تماس</th>
+                                <th class="p-3.5">ایمیل</th>
+                                <th class="p-3.5">نقش غالب (اول)</th>
+                                <th class="p-3.5">نقش پشتیبان (دوم)</th>
+                                <th class="p-3.5 text-center">تخصیص تیم</th>
+                                <th class="p-3.5 text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-database-tbody" class="divide-y divide-slate-200 text-slate-700 font-medium">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Two Groups Board -->
+            <div class="bg-white rounded-2xl shadow-lg border-2 border-pmp-navy/15 overflow-hidden">
+                <div class="pmp-gradient text-white px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-pmp-gold text-2xl shrink-0">
+                            <i class="fa-solid fa-people-group"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-lg sm:text-xl">تیم‌بندی نهایی کارگاه (فقط اعضایی که تیک دارند)</h3>
+                            <p class="text-xs text-sky-200 mt-0.5">توازن میان ابعاد عمل‌گرا، ارتباط‌گرا و تفکرمحور در دو تیم الف و ب</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="rounded-2xl border-2 border-sky-200 bg-sky-50/40 flex flex-col overflow-hidden">
+                        <div class="bg-sky-900 text-white px-5 py-3.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-sky-400 text-slate-950 font-black flex items-center justify-center text-sm">A</span>
+                                <h4 class="font-extrabold text-base">گروه اول (تیم پروژه الف)</h4>
+                            </div>
+                            <span id="group-1-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
+                        </div>
+                        <div class="p-4 bg-white border-b border-sky-100" id="group-1-balance-box"></div>
+                        <div id="group-1-members" class="p-4 space-y-2.5 flex-1"></div>
+                    </div>
+
+                    <div class="rounded-2xl border-2 border-amber-200 bg-amber-50/40 flex flex-col overflow-hidden">
+                        <div class="bg-amber-900 text-white px-5 py-3.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm">B</span>
+                                <h4 class="font-extrabold text-base">گروه دوم (تیم پروژه ب)</h4>
+                            </div>
+                            <span id="group-2-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
+                        </div>
+                        <div class="p-4 bg-white border-b border-amber-100" id="group-2-balance-box"></div>
+                        <div id="group-2-members" class="p-4 space-y-2.5 flex-1"></div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Branded Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-3">
+                <span class="font-black text-white text-sm">PMP<span class="text-pmp-gold">iran</span></span>
+                <span>|</span>
+                <span>شرکت مهندسی مشاور پیشرو مدیریت پیران (تأسیس ۱۳۸۴)</span>
+            </div>
+            <div class="text-center sm:text-left">
+                طراحی‌شده ویژه کارگاه آنلاین مدیریت پروژه — اساتید: <strong>مصطفی بختیاری</strong> و <strong>مهدی معین</strong>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION SCRIPT & LOCALSTORAGE DB       -->
+    <!-- ========================================== -->
+    <script>
+        const BELBIN_ROLES = {
+            PL: { id: 'PL', name: 'ایده‌پرداز (نوآور)', enName: 'Plant', color: '#0284c7', bgLight: 'bg-sky-50', textCol: 'text-sky-700', icon: 'fa-lightbulb', desc: 'خلاق، مبتکر و ارائه‌دهنده راه‌حل‌های نوآورانه.' },
+            ME: { id: 'ME', name: 'ارزیاب (ناظر)', enName: 'Monitor Evaluator', color: '#4f46e5', bgLight: 'bg-indigo-50', textCol: 'text-indigo-700', icon: 'fa-magnifying-glass-chart', desc: 'تحلیل‌گر، منطقی و بی‌طرف.' },
+            SP: { id: 'SP', name: 'متخصص', enName: 'Specialist', color: '#7c3aed', bgLight: 'bg-violet-50', textCol: 'text-violet-700', icon: 'fa-microchip', desc: 'دارای دانش تخصصی عمیق.' },
+            SH: { id: 'SH', name: 'شکل‌دهنده', enName: 'Shaper', color: '#ea580c', bgLight: 'bg-orange-50', textCol: 'text-orange-700', icon: 'fa-bolt', desc: 'پرانرژی، چالش‌گر و نتیجه‌گرا.' },
+            IMP: { id: 'IMP', name: 'مجری (پیاده‌ساز)', enName: 'Implementer', color: '#d97706', bgLight: 'bg-amber-50', textCol: 'text-amber-700', icon: 'fa-gears', desc: 'منظم، ساختارمند و قابل‌اتکا.' },
+            CF: { id: 'CF', name: 'تمام‌کننده', enName: 'Completer Finisher', color: '#e11d48', bgLight: 'bg-rose-50', textCol: 'text-rose-700', icon: 'fa-clipboard-check', desc: 'دقیق، کمال‌گرا و پیگیر.' },
+            CO: { id: 'CO', name: 'هماهنگ‌کننده', enName: 'Co-ordinator', color: '#059669', bgLight: 'bg-emerald-50', textCol: 'text-emerald-700', icon: 'fa-sitemap', desc: 'بالغ، بااعتمادبه‌نفس و تسهیل‌گر.' },
+            TW: { id: 'TW', name: 'همیار تیمی', enName: 'Teamworker', color: '#0d9488', bgLight: 'bg-teal-50', textCol: 'text-teal-700', icon: 'fa-handshake-angle', desc: 'همدل، حامی و دیپلماتیک.' },
+            RI: { id: 'RI', name: 'کاوشگر منابع', enName: 'Resource Investigator', color: '#16a34a', bgLight: 'bg-green-50', textCol: 'text-green-700', icon: 'fa-network-wired', desc: 'برون‌گرا، مشتاق و شبکه‌ساز.' }
+        };
+
+        const ROLE_ORDER = ['SH', 'IMP', 'CF', 'CO', 'TW', 'RI', 'PL', 'ME', 'SP'];
+
+        const BELBIN_SECTIONS = [
+            { id: 1, title: 'بخش اول: مشارکت و ارزش‌آفرینی من', prompt: 'فکر می‌کنم مشارکت اصلی من در یک تیم پروژه این است که:', items: [
+                { role: 'RI', text: 'به‌سرعت فرصت‌های جدید را شناسایی کرده و بهره‌برداری می‌کنم.' },
+                { role: 'TW', text: 'می‌توانم با افراد بسیار متفاوت به خوبی کار و همدلی کنم.' },
+                { role: 'PL', text: 'تولید ایده و ارائه راه‌حل‌های نوآورانه یکی از استعدادهای من است.' },
+                { role: 'CO', text: 'توانایی خوبی دارم که پتانسیل افراد را تشخیص دهم.' },
+                { role: 'CF', text: 'به دلیل پیگیری مستمر، کارها را همیشه به موقع به سرانجام می‌رسانم.' },
+                { role: 'SH', text: 'حاضرم برای رسیدن به نتایج درست، تیم را به حرکت وادارم.' },
+                { role: 'IMP', text: 'به‌سرعت متوجه می‌شوم چه راهکار عملی و ساختارمندی کارساز است.' },
+                { role: 'ME', text: 'بدون تعصب، می‌توانم دلایل منطقی برای گزینه‌ها ارائه دهم.' },
+                { role: 'SP', text: 'دانش تخصصی و مهارت‌های فنی کمیابی را به تیم پروژه اضافه می‌کنم.' }
+            ]},
+            { id: 2, title: 'بخش دوم: چالش‌ها و کاستی‌های احتمالی', prompt: 'اگر نقطه ضعفی داشته باشم، احتمالاً به این دلیل است که:', items: [
+                { role: 'IMP', text: 'اگر جلسات ساختارمند نباشند، احساس ناآرامی می‌کنم.' },
+                { role: 'CO', text: 'گاهی بیش‌ازحد به دیگران میدان می‌دهم.' },
+                { role: 'RI', text: 'وقتی ایده جدیدی مطرح می‌شود، بیش‌ازحد هیجان‌زده می‌شوم.' },
+                { role: 'ME', text: 'نگاه تحلیلی و عینی من باعث می‌شود به سادگی با دیگران هم‌صدا نشوم.' },
+                { role: 'SH', text: 'وقتی باید کاری فوراً پیش برود، گاهی قاطع و آمرانه برخورد می‌کنم.' },
+                { role: 'TW', text: 'قرار گرفتن در جایگاه رهبری مستقیم برایم دشوار است.' },
+                { role: 'PL', text: 'آن‌قدر غرق در ایده‌های خودم می‌شوم که از جریان تیم جا می‌مانم.' },
+                { role: 'CF', text: 'بیش‌ازحد نگران جزئیات ریز و احتمال بروز خطا هستم.' },
+                { role: 'SP', text: 'وقتی موضوع خارج از حوزه تخصصی‌ام باشد، تمایل کمی به مشارکت دارم.' }
+            ]},
+            { id: 3, title: 'بخش سوم: نحوه تعامل در اجرای پروژه', prompt: 'وقتی در یک پروژه با سایر اعضا درگیر کار می‌شوم:', items: [
+                { role: 'CO', text: 'می‌توانم بر افراد تأثیر بگذارم، بدون اینکه تحت فشارشان بگذارم.' },
+                { role: 'CF', text: 'هوشیاری و دقت دائمی من مانع از بروز اشتباهات می‌شود.' },
+                { role: 'SH', text: 'آماده‌ام به جلسه فشار بیاورم تا زمان تلف نشود.' },
+                { role: 'PL', text: 'می‌توان روی من حساب کرد تا دیدگاهی کاملاً بدیع اضافه کنم.' },
+                { role: 'TW', text: 'همواره آماده حمایت از پیشنهاد خوب دیگران هستم.' },
+                { role: 'RI', text: 'مشتاقانه به دنبال یافتن جدیدترین ایده‌ها بیرون از تیم هستم.' },
+                { role: 'ME', text: 'قدرت قضاوت منصفانه و تحلیل منطقی دارم.' },
+                { role: 'IMP', text: 'می‌توان به من تکیه کرد تا کارهای اجرایی سازمان‌دهی شوند.' },
+                { role: 'SP', text: 'در حوزه خود با تمام توان از استانداردهای فنی دفاع می‌کنم.' }
+            ]},
+            { id: 4, title: 'بخش چهارم: رویکرد و سبک رفتاری', prompt: 'رویکرد و ویژگی بارز من در کارهای گروهی این است که:', items: [
+                { role: 'TW', text: 'علاقه دارم فضای صمیمی و امن در تیم ایجاد کنم.' },
+                { role: 'SH', text: 'از به چالش کشیدن دیدگاه‌های دیگران ابایی ندارم.' },
+                { role: 'ME', text: 'استدلال محکمی برای رد پیشنهادهای غیرمنطقی دارم.' },
+                { role: 'IMP', text: 'برنامه‌ها را با نظم بالا به مرحله اجرا درمی‌آورم.' },
+                { role: 'PL', text: 'تمایل دارم از راه‌حل‌های تکراری عبور کنم.' },
+                { role: 'CF', text: 'به دنبال کمال و بی‌نقص بودن خروجی کار هستم.' },
+                { role: 'RI', text: 'دوست دارم از ارتباطات خارج از گروه استفاده کنم.' },
+                { role: 'CO', text: 'بدون تردید جمع‌بندی و تصمیم‌گیری می‌کنم.' },
+                { role: 'SP', text: 'تلاش می‌کنم مرجع فنی تیم باشم.' }
+            ]},
+            { id: 5, title: 'بخش پنجم: عوامل انگیزشی در پروژه', prompt: 'من در محیط پروژه بیشترین رضایت را زمانی کسب می‌کنم که:', items: [
+                { role: 'ME', text: 'از تجزیه‌وتحلیل موقعیت‌ها لذت می‌برم.' },
+                { role: 'IMP', text: 'راه‌حل‌های عملی برای مسائل اجرایی پیدا می‌کنم.' },
+                { role: 'TW', text: 'در کاهش تنش میان اعضا نقش مؤثری داشته باشم.' },
+                { role: 'SH', text: 'تأثیر مستقیمی بر سرعت پیشرفت پروژه بگذارم.' },
+                { role: 'RI', text: 'فرصت ملاقات با افراد جدید را داشته باشم.' },
+                { role: 'CO', text: 'توافق اعضا را بر سر اهداف جلب کنم.' },
+                { role: 'CF', text: 'تمرکزم معطوف به اتمام کامل وظایف باشد.' },
+                { role: 'PL', text: 'فضایی برای تفکر خلاقانه‌ام وجود داشته باشد.' },
+                { role: 'SP', text: 'کاری به من سپرده شود که نیازمند دانش تخصصی‌ام باشد.' }
+            ]},
+            { id: 6, title: 'بخش ششم: واکنش در برابر چالش‌ها', prompt: 'اگر وظیفه دشواری با زمان محدود به من محول شود:', items: [
+                { role: 'PL', text: 'ابتدا در خلوت فکر می‌کنم تا راهی نو بیابم.' },
+                { role: 'TW', text: 'با افراد مثبت همراه می‌شوم تا جو تیم آرام بماند.' },
+                { role: 'CO', text: 'وظایف را هوشمندانه میان اعضا تقسیم می‌کنم.' },
+                { role: 'CF', text: 'اجازه نمی‌دهم از برنامه زمان‌بندی عقب بمانیم.' },
+                { role: 'ME', text: 'خونسردی خود را حفظ کرده و منطقی فکر می‌کنم.' },
+                { role: 'IMP', text: 'با ثبات قدم و طبق گام‌های مشخص کار را پیش می‌برم.' },
+                { role: 'SH', text: 'خودم هدایت خط مقدم کار را به دست می‌گیرم.' },
+                { role: 'RI', text: 'بحث را باز می‌کنم تا با هم‌فکری حرکت جدیدی بزنیم.' },
+                { role: 'SP', text: 'ابعاد فنی کار را سریعاً بررسی می‌کنم.' }
+            ]},
+            { id: 7, title: 'بخش هفتم: حل مسئله در جلسات', prompt: 'در ارتباط با مسائلی که در جلسات با آن‌ها روبه‌رو می‌شوم:', items: [
+                { role: 'SH', text: 'وقتی افراد مانع پیشرفت شوند، واکنش نشان می‌دهم.' },
+                { role: 'ME', text: 'شاید بگویند بیش‌ازحد تحلیل‌گر هستم.' },
+                { role: 'CF', text: 'اصرار به کیفیت کامل، گاهی سرعت حرکت را کم می‌کند.' },
+                { role: 'RI', text: 'خیلی زود از کارهای تکراری خسته می‌شوم.' },
+                { role: 'IMP', text: 'اگر اهداف شفاف نباشند، شروع کار برایم دشوار است.' },
+                { role: 'PL', text: 'گاهی در متقاعد کردن دیگران چالش دارم.' },
+                { role: 'CO', text: 'از دیگران می‌خواهم کارهایی را انجام دهند که مهارتش را دارند.' },
+                { role: 'TW', text: 'تمایلی به پافشاری به قیمت برهم خوردن آرامش تیم ندارم.' },
+                { role: 'SP', text: 'جزئیات تخصصی را آن‌قدر تشریح می‌کنم که شاید خسته‌کننده باشد.' }
+            ]}
+        ];
+
+        let currentAllocations = {};
+        let participants = [];
+        let isAdminUnlocked = false;
+        const ADMIN_PASSWORDS = ['pmpiran8', 'PMPIRAN8', '1234'];
+
+        function initFormAllocations() {
+            currentAllocations = {};
+            BELBIN_SECTIONS.forEach(sec => {
+                currentAllocations[sec.id] = {};
+                sec.items.forEach(item => {
+                    currentAllocations[sec.id][item.role] = 0;
+                });
+            });
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                success: 'bg-emerald-600 text-white border-emerald-700',
+                error: 'bg-rose-600 text-white border-rose-700',
+                warning: 'bg-amber-500 text-slate-950 border-amber-600',
+                info: 'bg-pmp-navy text-white border-pmp-blue'
+            };
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-xl shadow-xl border ${colors[type]} text-xs sm:text-sm font-bold transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info text-lg shrink-0"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function requestAdminTab() {
+            if (isAdminUnlocked) {
+                switchTab(2);
+            } else {
+                const modal = document.getElementById('admin-login-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+            }
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('admin-login-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('admin-pass-input').value = '';
+        }
+
+        function verifyAdminPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass-input').value.trim();
+            if (ADMIN_PASSWORDS.includes(pass)) {
+                isAdminUnlocked = true;
+                document.getElementById('tab2-lock-icon').className = 'fa-solid fa-lock-open text-emerald-300 text-sm';
+                closeAdminModal();
+                switchTab(2);
+                showToast('پنل مدیریت اساتید باز شد.', 'success');
+            } else {
+                showToast('رمز عبور اشتباه است.', 'error');
+            }
+        }
+
+        function lockAdminPanel() {
+            isAdminUnlocked = false;
+            document.getElementById('tab2-lock-icon').className = 'fa-solid fa-lock text-amber-300 text-sm';
+            switchTab(1);
+            showToast('پنل مدیریت قفل شد.', 'info');
+        }
+
+        function switchTab(tabNum) {
+            if (tabNum === 2 && !isAdminUnlocked) {
+                requestAdminTab();
+                return;
+            }
+            const tab1 = document.getElementById('tab-content-1');
+            const tab2 = document.getElementById('tab-content-2');
+            const btn1 = document.getElementById('tab-btn-1');
+            const btn2 = document.getElementById('tab-btn-2');
+
+            if (tabNum === 1) {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-pmp-gold text-slate-950 shadow-lg';
+                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-white/10 text-white hover:bg-white/20';
+            } else {
+                tab1.classList.add('hidden');
+                tab2.classList.remove('hidden');
+                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-pmp-gold text-slate-950 shadow-lg';
+                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-white/10 text-white hover:bg-white/20';
+                renderAdminDashboard();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function getSectionSum(secId) {
+            const sec = currentAllocations[secId] || {};
+            return Object.values(sec).reduce((a, b) => a + b, 0);
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            BELBIN_SECTIONS.forEach(sec => {
+                const secCard = document.createElement('div');
+                secCard.id = `section-card-${sec.id}`;
+                secCard.className = 'bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden';
+
+                let itemsHtml = '';
+                sec.items.forEach((item, idx) => {
+                    itemsHtml += `
+                        <div id="row-${sec.id}-${item.role}" class="p-3.5 sm:p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+                            <div class="flex items-start gap-3">
+                                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+                                <p class="text-sm text-slate-800 font-medium leading-relaxed">${item.text}</p>
+                            </div>
+                            <div class="flex items-center justify-end gap-2 shrink-0">
+                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', -1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-600 font-bold flex items-center justify-center shadow-sm"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <span id="val-${sec.id}-${item.role}" class="w-10 text-center font-black text-base text-slate-700">0</span>
+                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', 1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-600 font-bold flex items-center justify-center shadow-sm"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                secCard.innerHTML = `
+                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+                        <h3 class="font-extrabold text-slate-800 text-base">بخش ${sec.id}: ${sec.title}</h3>
+                        <div id="sec-badge-${sec.id}" class="px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-extrabold">باقی‌مانده: 10 امتیاز</div>
+                    </div>
+                    <div class="p-5 space-y-2.5">${itemsHtml}</div>
+                `;
+                container.appendChild(secCard);
+            });
+            updateProgressUI();
+        }
+
+        function adjustPoint(secId, roleId, delta) {
+            const currentVal = currentAllocations[secId][roleId];
+            const currentSum = getSectionSum(secId);
+            if (delta > 0 && currentSum >= 10) {
+                showToast(`در بخش ${secId} هر ۱۰ امتیاز تخصیص یافته است.`, 'warning');
+                return;
+            }
+            if (delta < 0 && currentVal <= 0) return;
+
+            currentAllocations[secId][roleId] = currentVal + delta;
+            updateSectionUI(secId);
+            updateProgressUI();
+        }
+
+        function updateSectionUI(secId) {
+            const sum = getSectionSum(secId);
+            const rem = 10 - sum;
+            Object.keys(currentAllocations[secId]).forEach(roleId => {
+                document.getElementById(`val-${secId}-${roleId}`).textContent = currentAllocations[secId][roleId];
+            });
+            const badgeEl = document.getElementById(`sec-badge-${secId}`);
+            if (rem === 0) {
+                badgeEl.className = 'px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-extrabold';
+                badgeEl.textContent = 'تکمیل شد (۱۰/۱۰)';
+            } else {
+                badgeEl.className = 'px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-extrabold';
+                badgeEl.textContent = `باقی‌مانده: ${rem} امتیاز`;
+            }
+        }
+
+        function updateProgressUI() {
+            let total = 0, completed = 0;
+            BELBIN_SECTIONS.forEach(sec => {
+                const s = getSectionSum(sec.id);
+                total += s;
+                if (s === 10) completed++;
+            });
+            document.getElementById('completed-sections-count').textContent = completed;
+            document.getElementById('overall-points-text').textContent = `${total} از 70 امتیاز`;
+            document.getElementById('overall-progress-bar').style.width = `${Math.round((total/70)*100)}%`;
+        }
+
+        // LocalStorage DB Handling
+        function loadParticipants() {
+            const data = localStorage.getItem('pmpiran_belbin_db');
+            if (data) {
+                try { participants = JSON.parse(data); } catch(e) { participants = []; }
+            }
+            updateParticipantsBadge();
+        }
+
+        function saveParticipants() {
+            localStorage.setItem('pmpiran_belbin_db', JSON.stringify(participants));
+            updateParticipantsBadge();
+        }
+
+        function updateParticipantsBadge() {
+            document.getElementById('participants-badge').textContent = participants.length;
+        }
+
+        // Submit Test (Requires Name, Phone & Email)
+        function submitBelbinTest() {
+            const name = document.getElementById('student-name').value.trim();
+            const phone = document.getElementById('student-phone').value.trim();
+            const email = document.getElementById('student-email').value.trim();
+
+            if (!name || !phone || !email) {
+                showToast('لطفاً نام، شماره موبایل و ایمیل خود را به طور کامل وارد کنید.', 'error');
+                return;
+            }
+
+            for (const sec of BELBIN_SECTIONS) {
+                if (getSectionSum(sec.id) !== 10) {
+                    showToast(`بخش ${sec.id} کامل نشده است (باید دقیقاً ۱۰ امتیاز باشد).`, 'error');
+                    return;
+                }
+            }
+
+            const scores = {};
+            ROLE_ORDER.forEach(r => scores[r] = 0);
+            BELBIN_SECTIONS.forEach(sec => {
+                ROLE_ORDER.forEach(r => { scores[r] += (currentAllocations[sec.id][r] || 0); });
+            });
+
+            const categoryScores = {
+                ACTION: (scores.SH || 0) + (scores.IMP || 0) + (scores.CF || 0),
+                PEOPLE: (scores.CO || 0) + (scores.TW || 0) + (scores.RI || 0),
+                THOUGHT: (scores.PL || 0) + (scores.ME || 0) + (scores.SP || 0)
+            };
+
+            const sortedRoles = [...ROLE_ORDER].sort((a, b) => scores[b] - scores[a]);
+            const primaryRole = sortedRoles[0];
+            const secondaryRole = sortedRoles[1];
+
+            loadParticipants();
+
+            // Prevent duplicate based on email or phone
+            const existingIdx = participants.findIndex(p => p.email === email || p.phone === phone);
+            
+            const newRecord = {
+                id: existingIdx >= 0 ? participants[existingIdx].id : ('p_' + Date.now()),
+                name,
+                phone,
+                email,
+                timestamp: Date.now(),
+                scores,
+                categoryScores,
+                primaryRole,
+                secondaryRole,
+                isWorkshopMember: existingIdx >= 0 ? participants[existingIdx].isWorkshopMember : true,
+                group: existingIdx >= 0 ? participants[existingIdx].group : 1
+            };
+
+            if (existingIdx >= 0) {
+                participants[existingIdx] = newRecord;
+            } else {
+                participants.push(newRecord);
+            }
+
+            saveParticipants();
+            showStudentCompletionBanner(newRecord);
+            showToast('آزمون شما با موفقیت ثبت شد!', 'success');
+        }
+
+        // Personal Summary Card in Tab 1 (Shows Full Charts & Analysis as requested)
+        function showStudentCompletionBanner(rec) {
+            const banner = document.getElementById('student-completion-banner');
+            const pRole = BELBIN_ROLES[rec.primaryRole];
+            const sRole = BELBIN_ROLES[rec.secondaryRole];
+
+            const maxRoleScore = Math.max(25, ...Object.values(rec.scores));
+            const barsHtml = ROLE_ORDER.map(roleKey => {
+                const roleInfo = BELBIN_ROLES[roleKey];
+                const score = rec.scores[roleKey] || 0;
+                const widthPct = Math.round((score / maxRoleScore) * 100);
+                return `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs sm:text-sm">
+                            <span class="font-bold text-slate-800">${roleInfo.name}</span>
+                            <span class="font-black text-sm text-slate-900">${score} امتیاز</span>
+                        </div>
+                        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                            <div class="h-full rounded-full bar-transition" style="width: ${Math.max(widthPct, 2)}%; background-color: ${roleInfo.color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            banner.classList.remove('hidden');
+            banner.innerHTML = `
+                <div class="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-extrabold text-lg">${rec.name} عزیز، کارنامه تحلیلی کامل شما آماده است!</h3>
+                        <p class="text-xs text-emerald-100">اطلاعات شما در سامانه اساتید ثبت شد.</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-white text-emerald-800 text-xs font-extrabold">نقش غالب: ${pRole.name}</span>
+                </div>
+                <div class="p-6 space-y-6 bg-emerald-50/40">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-bold">نقش اول (غالب):</div>
+                            <div class="text-base font-black text-pmp-navy mt-1">${pRole.name} (${rec.scores[rec.primaryRole]} امتیاز)</div>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${pRole.desc}</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                            <div class="text-xs text-slate-500 font-bold">نقش دوم (پشتیبان):</div>
+                            <div class="text-base font-black text-pmp-navy mt-1">${sRole.name} (${rec.scores[rec.secondaryRole]} امتیاز)</div>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${sRole.desc}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 border border-slate-200 space-y-3">
+                        <h4 class="font-extrabold text-slate-800 text-sm">نمودار کامل امتیازات شما در ۹ نقش تیمی بلبین</h4>
+                        <div class="space-y-3">${barsHtml}</div>
+                    </div>
+                </div>
+            `;
+            banner.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Tab 2 Admin Dashboard Rendering (Shows summary table as requested)
+        function renderAdminDashboard() {
+            loadParticipants();
+            renderAdminDatabaseTable();
+            renderTwoGroupsBoard();
+        }
+
+        function renderAdminDatabaseTable() {
+            const tbody = document.getElementById('admin-database-tbody');
+            const search = document.getElementById('db-search-input')?.value.toLowerCase() || '';
+            
+            const filtered = participants.filter(p => p.name.toLowerCase().includes(search) || p.phone.includes(search) || p.email.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400">هیچ رکوردی در دیتابیس یافت نشد.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map((p, idx) => {
+                const pRole = BELBIN_ROLES[p.primaryRole];
+                const sRole = BELBIN_ROLES[p.secondaryRole];
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3.5 text-center font-bold text-slate-500">${idx + 1}</td>
+                        <td class="p-3.5 text-center">
+                            <input type="checkbox" ${p.isWorkshopMember !== false ? 'checked' : ''} onchange="toggleWorkshopMember('${p.id}', this.checked)" class="w-4 h-4 rounded text-pmp-royal focus:ring-pmp-royal cursor-pointer">
+                        </td>
+                        <td class="p-3.5 font-bold text-slate-900">${p.name}</td>
+                        <td class="p-3.5 font-mono text-slate-600" dir="ltr">${p.phone}</td>
+                        <td class="p-3.5 font-mono text-slate-600" dir="ltr">${p.email}</td>
+                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${pRole.bgLight} ${pRole.textCol}">${pRole.name}</span></td>
+                        <td class="p-3.5 text-slate-600">${sRole.name}</td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="toggleGroup('${p.id}')" class="px-2.5 py-1 rounded text-xs font-bold border ${p.group === 1 ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-amber-100 text-amber-800 border-amber-300'}">
+                                گروه ${p.group === 1 ? 'الف' : 'ب'} <i class="fa-solid fa-repeat mr-1 text-[10px]"></i>
+                            </button>
+                        </td>
+                        <td class="p-3.5 text-center">
+                            <button onclick="deleteParticipant('${p.id}')" class="text-slate-400 hover:text-rose-600 transition" title="حذف">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function toggleWorkshopMember(id, isChecked) {
+            const p = participants.find(item => item.id === id);
+            if (p) {
+                p.isWorkshopMember = isChecked;
+                saveParticipants();
+                renderTwoGroupsBoard();
+            }
+        }
+
+        function toggleGroup(id) {
+            const p = participants.find(item => item.id === id);
+            if (p) {
+                p.group = p.group === 1 ? 2 : 1;
+                saveParticipants();
+                renderTwoGroupsBoard();
+            }
+        }
+
+        function deleteParticipant(id) {
+            participants = participants.filter(item => item.id !== id);
+            saveParticipants();
+            renderAdminDashboard();
+            showToast('رکورد با موفقیت حذف شد.', 'info');
+        }
+
+        // Auto Divide Only Checked Workshop Members into 2 Balanced Groups
+        function autoDivideIntoTwoGroups() {
+            const activeMembers = participants.filter(p => p.isWorkshopMember !== false);
+            if (activeMembers.length < 2) {
+                showToast('برای تقسیم‌بندی تیم‌ها باید حداقل ۲ عضو تیک‌خورده در لیست داشته باشید.', 'warning');
+                return;
+            }
+
+            const sorted = [...activeMembers].sort((a, b) => b.scores[b.primaryRole] - a.scores[a.primaryRole]);
+            let g1Count = 0, g2Count = 0;
+            const maxPerGroup = Math.ceil(sorted.length / 2);
+
+            sorted.forEach(p => {
+                if (g1Count >= maxPerGroup) {
+                    p.group = 2; g2Count++;
+                } else if (g2Count >= maxPerGroup) {
+                    p.group = 1; g1Count++;
+                } else {
+                    if (g1Count <= g2Count) { p.group = 1; g1Count++; }
+                    else { p.group = 2; g2Count++; }
+                }
+            });
+
+            saveParticipants();
+            renderAdminDashboard();
+            showToast('اعضای تیک‌خورده با موفقیت در ۲ تیم متوازن سازماندهی شدند!', 'success');
+        }
+
+        function renderTwoGroupsBoard() {
+            loadParticipants();
+            const activeMembers = participants.filter(p => p.isWorkshopMember !== false);
+            const g1 = activeMembers.filter(p => p.group === 1);
+            const g2 = activeMembers.filter(p => p.group === 2);
+
+            document.getElementById('group-1-count').textContent = `${g1.length} عضو`;
+            document.getElementById('group-2-count').textContent = `${g2.length} عضو`;
+
+            renderGroupColumn(g1, 'group-1-balance-box', 'group-1-members', 'الف');
+            renderGroupColumn(g2, 'group-2-balance-box', 'group-2-members', 'ب');
+        }
+
+        function renderGroupColumn(members, balanceBoxId, membersBoxId, groupName) {
+            const balanceBox = document.getElementById(balanceBoxId);
+            const membersBox = document.getElementById(membersBoxId);
+
+            if (members.length === 0) {
+                balanceBox.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">عضوی در این تیم انتخاب نشده است.</div>`;
+                membersBox.innerHTML = '';
+                return;
+            }
+
+            let sumAction = 0, sumPeople = 0, sumThought = 0;
+            members.forEach(m => {
+                sumAction += m.categoryScores.ACTION;
+                sumPeople += m.categoryScores.PEOPLE;
+                sumThought += m.categoryScores.THOUGHT;
+            });
+            const total = Math.max(1, sumAction + sumPeople + sumThought);
+            const actPct = Math.round((sumAction / total) * 100);
+            const peoPct = Math.round((sumPeople / total) * 100);
+            const thoPct = Math.max(0, 100 - actPct - peoPct);
+
+            balanceBox.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span>توازن تیم ${groupName}:</span>
+                        <div class="flex items-center gap-2 text-[10px]">
+                            <span class="text-amber-600">عمل‌گرا: ${actPct}%</span>
+                            <span class="text-emerald-600">ارتباط‌گرا: ${peoPct}%</span>
+                            <span class="text-sky-600">تفکرمحور: ${thoPct}%</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full overflow-hidden flex bg-slate-100">
+                        <div class="h-full bg-amber-500" style="width: ${actPct}%"></div>
+                        <div class="h-full bg-emerald-500" style="width: ${peoPct}%"></div>
+                        <div class="h-full bg-sky-600" style="width: ${thoPct}%"></div>
+                    </div>
+                </div>
+            `;
+
+            membersBox.innerHTML = members.map((m, idx) => {
+                const pRole = BELBIN_ROLES[m.primaryRole];
+                return `
+                    <div class="bg-white rounded-xl p-3 border border-slate-200 flex items-center justify-between gap-3 shadow-sm">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
+                            <div>
+                                <div class="font-bold text-slate-800 text-xs">${m.name}</div>
+                                <div class="text-[10px] text-slate-500">${pRole.name}</div>
+                            </div>
+                        </div>
+                        <button onclick="toggleGroup('${m.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold">جابه‌جایی</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.onload = function () {
+            initFormAllocations();
+            renderQuestions();
+            loadParticipants();
+        };
+    </script>
+</body>
+</html>
