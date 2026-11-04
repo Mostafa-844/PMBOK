@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون نقش‌های تیمی بلبین | کارگاه PMBOK® 8th - پیشرو مدیریت پیران (PMPiran)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Persian Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+                    },
+                    colors: {
+                        pmp: {
+                            navy: '#0B2447',
+                            blue: '#19376D',
+                            royal: '#0284C7',
+                            light: '#E0F2FE',
+                            gold: '#F59E0B',
+                            amber: '#D97706',
+                            accent: '#EA580C'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+            background-color: #f1f5f9;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .pmp-gradient {
+            background: linear-gradient(135deg, #0B2447 0%, #19376D 55%, #0369A1 100%);
+        }
+        .gold-gradient {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        .bar-transition {
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1), height 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2.5s infinite ease-in-out;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 left-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Custom Modal for Import / Export Codes -->
+    <div id="code-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200">
+            <div class="pmp-gradient text-white p-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-share-nodes text-pmp-gold text-xl"></i>
+                    <h3 class="font-bold text-lg">افزودن کد نتایج دانشجویان (تجمیع کلاس آنلاین)</h3>
+                </div>
+                <button onclick="closeCodeModal()" class="text-white/80 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    در صورتی که دانشجویان فایل HTML را روی سیستم خود باز کرده‌اند، پس از اتمام آزمون یک <strong>«کد نتیجه»</strong> دریافت می‌کنند. کافی است کدهای ارسالی دانشجویان در چت کلاس را در کادر زیر جای‌گذاری (Paste) کنید (می‌توانید چند کد را هم‌زمان در خطوط مجزا وارد کنید):
+                </p>
+                <textarea id="import-codes-input" rows="5" dir="ltr" placeholder="PMP8-eyJuYW1lIjoi...&#10;PMP8-eyJuYW1lIjoi..." class="w-full p-3 rounded-xl border border-slate-300 focus:border-pmp-royal focus:ring-2 focus:ring-pmp-royal/20 text-xs font-mono text-slate-700 outline-none"></textarea>
+                <div class="flex items-center justify-end gap-3 pt-2">
+                    <button onclick="closeCodeModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition">
+                        انصراف
+                    </button>
+                    <button onclick="importStudentCodes()" class="px-5 py-2.5 rounded-xl gold-gradient text-white text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-import"></i>
+                        ثبت و افزودن به لیست نتایج
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Branded Header (PMPiran) -->
+    <header class="pmp-gradient text-white shadow-xl relative overflow-hidden">
+        <!-- Decorative Geometric Background -->
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-80 h-80 bg-amber-400/10 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                <!-- Brand Logo & Company Title -->
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-white shadow-lg flex flex-col items-center justify-center p-2 border-2 border-pmp-gold shrink-0">
+                        <span class="font-black text-lg tracking-tighter text-pmp-navy leading-none">PMP<span class="text-pmp-gold">iran</span></span>
+                        <span class="text-[9px] font-bold text-slate-500 mt-1">پیشرو مدیریت پیران</span>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-semibold">
+                                جلسه معارفه و تیم‌سازی پروژه
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-sky-400/20 border border-sky-400/40 text-sky-200 text-xs font-semibold">
+                                مبتنی بر استاندارد PMBOK® 8th Edition
+                            </span>
+                        </div>
+                        <h1 class="text-xl sm:text-2xl font-extrabold mt-1.5 tracking-tight">
+                            سامانه ارزیابی نقش‌های تیمی بلبین (Belbin Team Roles)
+                        </h1>
+                        <p class="text-xs sm:text-sm text-sky-100/90 mt-0.5">
+                            شرکت مهندسی مشاور پیشرو مدیریت پیران | بیش از ۲۰ سال تجربه در آموزش و مشاوره مدیریت پروژه
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Workshop Instructors Info Card -->
+                <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-center gap-4 text-xs sm:text-sm w-full lg:w-auto justify-center">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300">
+                            <i class="fa-solid fa-user-tie text-base"></i>
+                        </div>
+                        <div>
+                            <div class="text-sky-200 text-[11px]">رئیس هیئت مدیره و مدرس کارگاه</div>
+                            <div class="font-bold text-white">مهندس مصطفی بختیاری</div>
+                        </div>
+                    </div>
+                    <div class="hidden sm:block h-8 w-px bg-white/20"></div>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-300">
+                            <i class="fa-solid fa-chalkboard-user text-base"></i>
+                        </div>
+                        <div>
+                            <div class="text-sky-200 text-[11px]">مدیرعامل و مدرس کارگاه</div>
+                            <div class="font-bold text-white">مهندس مهدی معین</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Navigation Tabs (2 Tabs as requested) -->
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-4 no-print">
+                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <button id="tab-btn-1" onclick="switchTab(1)" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-pmp-gold text-slate-950 shadow-lg">
+                        <i class="fa-solid fa-pen-to-square text-base"></i>
+                        <span>تب ۱: ورود دانشجو و انجام تست بلبین</span>
+                    </button>
+                    <button id="tab-btn-2" onclick="switchTab(2)" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-white/10 text-white hover:bg-white/20">
+                        <i class="fa-solid fa-chart-column text-base"></i>
+                        <span>تب ۲: نتایج، نمودار میله‌ای و گروه‌بندی</span>
+                        <span id="participants-badge" class="px-2 py-0.5 text-xs rounded-full bg-amber-400 text-slate-950 font-extrabold">0</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 text-xs text-sky-200 hidden md:flex">
+                    <span><i class="fa-solid fa-globe ml-1 text-pmp-gold"></i> pmpiran.com</span>
+                    <span>•</span>
+                    <span><i class="fa-solid fa-phone ml-1 text-pmp-gold"></i> ۰۲۱-۹۱۰۷۰۲۲۲</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: STUDENT LOGIN & BELBIN TEST         -->
+        <!-- ========================================== -->
+        <section id="tab-content-1" class="space-y-6">
+
+            <!-- Step 1: Student Login / Profile Card -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden">
+                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-pmp-navy text-white font-bold flex items-center justify-center text-sm">۱</span>
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-base sm:text-lg">مشخصات شرکت‌کننده در کارگاه PMBOK® 8</h2>
+                            <p class="text-xs text-slate-500">لطفاً نام و نام خانوادگی خود را وارد کرده و سپس در بخش پایین به سؤالات آزمون پاسخ دهید.</p>
+                        </div>
+                    </div>
+                    <div class="text-xs bg-sky-50 text-sky-800 border border-sky-200 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-pmp-royal"></i>
+                        <span>دامنه عملکردی منابع: فرآیند هدایت تیم (Lead the Team)</span>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+                        <div class="md:col-span-2">
+                            <label for="student-name" class="block text-sm font-bold text-slate-700 mb-2">
+                                نام و نام خانوادگی دانشجو <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                </span>
+                                <input type="text" id="student-name" placeholder="مثال: علی رضایی" 
+                                    class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal focus:ring-2 focus:ring-pmp-royal/20 outline-none transition text-slate-800 font-medium">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="student-role" class="block text-sm font-bold text-slate-700 mb-2">
+                                سمت شغلی یا رشته تخصصی <span class="text-slate-400 font-normal text-xs">(اختیاری)</span>
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
+                                    <i class="fa-solid fa-briefcase"></i>
+                                </span>
+                                <input type="text" id="student-role" placeholder="مثال: کارشناس برنامه‌ریزی و کنترل پروژه" 
+                                    class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal focus:ring-2 focus:ring-pmp-royal/20 outline-none transition text-slate-800 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions Banner -->
+                    <div class="mt-5 bg-amber-50/80 border border-amber-200/80 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-xl mt-0.5"></i>
+                            <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                <strong class="text-slate-900">راهنمای امتیازدهی استاندارد بلبین:</strong>
+                                این آزمون شامل <strong>۷ بخش</strong> است. در هر بخش <strong>۱۰ امتیاز</strong> در اختیار دارید تا بین گزاره‌هایی که بیشترین شباهت را به رفتار واقعی شما در تیم‌های پروژه دارند تقسیم کنید (می‌توانید هر ۱۰ امتیاز را به یک گزینه بدهید یا بین چند گزینه تقسیم کنید تا جمع هر بخش دقیقاً ۱۰ شود).
+                            </div>
+                        </div>
+                        <button onclick="fillRandomSampleForCurrentForm()" type="button" class="shrink-0 px-3.5 py-2 rounded-xl bg-white hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>پر کردن آزمایشی (تست سریع)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Progress Sticky Bar -->
+            <div class="sticky top-2 z-30 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="w-10 h-10 rounded-xl bg-pmp-navy text-white flex items-center justify-center font-bold shrink-0">
+                        <span id="completed-sections-count">0</span>/7
+                    </div>
+                    <div class="flex-1 sm:w-64">
+                        <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                            <span>پیشرفت تکمیل پرسشنامه</span>
+                            <span id="overall-points-text">0 از 70 امتیاز تخصیص یافته</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div id="overall-progress-bar" class="h-full bg-gradient-to-l from-pmp-gold to-emerald-500 bar-transition" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Quick Pills -->
+                <div id="section-pills" class="flex items-center gap-1.5 flex-wrap justify-center">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Step 2: The 7 Belbin Sections Container -->
+            <div id="questions-container" class="space-y-6">
+                <!-- Populated dynamically by JS -->
+            </div>
+
+            <!-- Submit Button Card -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">پایان پاسخ‌گویی و ثبت در سامانه گروه‌بندی</h3>
+                        <p class="text-xs text-slate-500">پس از اطمینان از تخصیص ۱۰ امتیاز در هر ۷ بخش، روی دکمه روبه‌رو کلیک کنید تا نمودار میله‌ای شما در تب دوم ترسیم شود.</p>
+                    </div>
+                </div>
+                <button onclick="submitBelbinTest()" class="w-full sm:w-auto px-8 py-4 rounded-xl gold-gradient text-white font-extrabold text-base shadow-lg hover:shadow-xl hover:scale-[1.01] transition flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-chart-Simple"></i>
+                    <span>ثبت نهایی آزمون و مشاهده نمودار میله‌ای</span>
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: RESULTS, BAR CHARTS & GROUPING      -->
+        <!-- ========================================== -->
+        <section id="tab-content-2" class="hidden space-y-6">
+
+            <!-- Top Action Toolbar for Instructor (Mostafa Bakhtiari & Mehdi Moein) -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 no-print">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 rounded-md bg-pmp-navy text-white text-xs font-bold">پنل تحلیلی اساتید و دانشجویان</span>
+                        <h2 class="font-extrabold text-slate-800 text-lg">نتایج فردی، نمودارهای میله‌ای و تقسیم‌بندی به ۲ گروه</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">
+                        مشاهده ابعاد شخصیتی هر دانشجو در ۹ نقش بلبین و ۳ حوزه (عمل‌گرا، ارتباط‌گرا، تفکرمحور) جهت تشکیل دو تیم پروژه متوازن بر اساس PMBOK 8
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                    <button onclick="switchTab(1)" class="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-pmp-navy border border-sky-200 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-pmp-royal"></i>
+                        <span>ثبت آزمون دانشجوی جدید</span>
+                    </button>
+                    <button onclick="openCodeModal()" class="px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-paste text-indigo-600"></i>
+                        <span>افزودن کد دانشجویان (از چت کلاس)</span>
+                    </button>
+                    <button onclick="loadDemoStudents()" class="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-amber-600"></i>
+                        <span>بارگذاری ۸ دانشجوی نمونه (دمو)</span>
+                    </button>
+                    <button onclick="autoDivideIntoTwoGroups()" class="px-4 py-2.5 rounded-xl pmp-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-pmp-gold"></i>
+                        <span>تقسیم‌بندی هوشمند به ۲ گروه متوازن</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty State (Shown when no students have completed the test yet) -->
+            <div id="empty-results-state" class="bg-white rounded-2xl shadow-md border border-slate-200 p-12 text-center space-y-4">
+                <div class="w-20 h-20 rounded-3xl bg-sky-50 text-pmp-royal mx-auto flex items-center justify-center text-4xl shadow-inner">
+                    <i class="fa-solid fa-chart-bar"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-800">هنوز نتیجه‌ای ثبت نشده است</h3>
+                <p class="text-sm text-slate-500 max-w-lg mx-auto leading-relaxed">
+                    برای مشاهده نمودار میله‌ای ابعاد شخصیتی و گروه‌بندی دانشجویان، از <strong>«تب ۱»</strong> آزمون را تکمیل کنید، یا کدهای ارسالی دانشجویان در چت کلاس را وارد نمایید، و یا برای تست پنل روی دکمه <strong>«بارگذاری ۸ دانشجوی نمونه»</strong> کلیک کنید.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button onclick="switchTab(1)" class="px-5 py-2.5 rounded-xl gold-gradient text-white font-bold text-sm shadow">
+                        شروع آزمون در تب اول
+                    </button>
+                    <button onclick="loadDemoStudents()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">
+                        مشاهده دموی آماده (۸ دانشجو)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Content Wrapper (Hidden when empty) -->
+            <div id="results-dashboard-wrapper" class="hidden space-y-8">
+
+                <!-- SECTION A: SELECTED STUDENT DETAILED BAR CHART & PROFILE -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-pmp-navy text-pmp-gold flex items-center justify-center">
+                                <i class="fa-solid fa-chart-column"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-slate-800 text-base sm:text-lg">کارنامه تحلیلی و نمودار میله‌ای فردی</h3>
+                                <p class="text-xs text-slate-500">بررسی امتیاز دقیق هر فرد در ۹ نقش تیمی بلبین و ۳ بُعد اصلی مدیریت پروژه</p>
+                            </div>
+                        </div>
+
+                        <!-- Student Switcher Dropdown -->
+                        <div class="flex items-center gap-2">
+                            <label for="active-student-select" class="text-xs font-bold text-slate-600 shrink-0">انتخاب دانشجو:</label>
+                            <select id="active-student-select" onchange="selectStudentForDetail(this.value)" class="px-3 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-pmp-navy focus:border-pmp-royal outline-none min-w-[200px]">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Detailed View Body -->
+                    <div id="selected-student-detail" class="p-6">
+                        <!-- Populated dynamically by JS -->
+                    </div>
+                </div>
+
+                <!-- SECTION B: ALL STUDENTS BAR CHARTS GRID (COMPARATIVE OVERVIEW) -->
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-3 h-7 rounded-full bg-pmp-gold"></span>
+                            <h3 class="font-extrabold text-slate-800 text-lg">نمای مقایسه‌ای نمودار میله‌ای تمام شرکت‌کنندگان (<span id="all-students-count-label">0</span> نفر)</h3>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs font-semibold">
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-amber-500 inline-block"></span> نقش‌های عمل‌گرا (Action)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-emerald-500 inline-block"></span> نقش‌های ارتباط‌گرا (People)</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-sky-600 inline-block"></span> نقش‌های تفکرمحور (Thought)</span>
+                        </div>
+                    </div>
+
+                    <div id="all-students-charts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Individual Student Bar Chart Cards populated by JS -->
+                    </div>
+                </div>
+
+                <!-- SECTION C: TWO-GROUP DIVISION BOARD (GROUP A & GROUP B) -->
+                <div class="bg-white rounded-2xl shadow-lg border-2 border-pmp-navy/15 overflow-hidden">
+                    <div class="pmp-gradient text-white px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-pmp-gold text-2xl shrink-0">
+                                <i class="fa-solid fa-people-group"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-lg sm:text-xl">تیم‌بندی کارگاه PMBOK® 8 (تقسیم به ۲ گروه متوازن پروژه)</h3>
+                                <p class="text-xs text-sky-200 mt-0.5">
+                                    بر اساس اصل «تیم‌های متقاطع و مکمل (Cross-Functional Teams)»، هر گروه نیازمند توازن در ۳ بُعد تفکرمحور، عمل‌گرا و ارتباط‌گرا است.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 no-print">
+                            <button onclick="autoDivideIntoTwoGroups()" class="px-4 py-2.5 rounded-xl bg-pmp-gold hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow transition flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>چینش خودکار و متوازن ۲ گروه</span>
+                            </button>
+                            <button onclick="window.print()" class="px-3.5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-print"></i>
+                                <span>چاپ / PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Group 1 Column -->
+                        <div class="rounded-2xl border-2 border-sky-200 bg-sky-50/40 flex flex-col overflow-hidden">
+                            <div class="bg-sky-900 text-white px-5 py-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-7 h-7 rounded-lg bg-sky-400 text-slate-950 font-black flex items-center justify-center text-sm">A</span>
+                                    <h4 class="font-extrabold text-base">گروه اول (تیم پروژه الف)</h4>
+                                </div>
+                                <span id="group-1-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
+                            </div>
+                            <!-- Group 1 Balance Mini Bar -->
+                            <div class="p-4 bg-white border-b border-sky-100" id="group-1-balance-box">
+                                <!-- Populated by JS -->
+                            </div>
+                            <!-- Group 1 Members List -->
+                            <div id="group-1-members" class="p-4 space-y-2.5 flex-1">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Group 2 Column -->
+                        <div class="rounded-2xl border-2 border-amber-200 bg-amber-50/40 flex flex-col overflow-hidden">
+                            <div class="bg-amber-900 text-white px-5 py-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm">B</span>
+                                    <h4 class="font-extrabold text-base">گروه دوم (تیم پروژه ب)</h4>
+                                </div>
+                                <span id="group-2-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
+                            </div>
+                            <!-- Group 2 Balance Mini Bar -->
+                            <div class="p-4 bg-white border-b border-amber-100" id="group-2-balance-box">
+                                <!-- Populated by JS -->
+                            </div>
+                            <!-- Group 2 Members List -->
+                            <div id="group-2-members" class="p-4 space-y-2.5 flex-1">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Branded Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-12 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-3">
+                <span class="font-black text-white text-sm">PMP<span class="text-pmp-gold">iran</span></span>
+                <span>|</span>
+                <span>شرکت مهندسی مشاور پیشرو مدیریت پیران (تأسیس ۱۳۸۴)</span>
+            </div>
+            <div class="text-center sm:text-left">
+                طراحی‌شده ویژه کارگاه آنلاین مدیریت پروژه بر اساس استاندارد <strong>PMBOK® 8th Edition</strong> — اساتید: <strong>مصطفی بختیاری</strong> و <strong>مهدی معین</strong>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION LOGIC & BELBIN DATA            -->
+    <!-- ========================================== -->
+    <script>
+        /**
+         * 9 Belbin Team Roles Definition
+         * Categorized into:
+         * - THOUGHT (تفکرمحور): PL, ME, SP
+         * - ACTION (عمل‌گرا): SH, IMP, CF
+         * - PEOPLE (ارتباط‌گرا): CO, TW, RI
+         */
+        const BELBIN_ROLES = {
+            PL: {
+                id: 'PL',
+                name: 'ایده‌پرداز (نوآور)',
+                enName: 'Plant',
+                category: 'THOUGHT',
+                categoryFa: 'تفکرمحور',
+                color: '#0284c7', // sky-600
+                bgLight: 'bg-sky-50',
+                textCol: 'text-sky-700',
+                borderCol: 'border-sky-200',
+                icon: 'fa-lightbulb',
+                desc: 'خلاق، مبتکر و ارائه‌دهنده راه‌حل‌های نوآورانه برای مسائل پیچیده پروژه.',
+                pmbokLink: 'حوزه نوآوری، حل مسئله خلاقانه و مواجهه با ابهام (Ambiguity) در PMBOK 8',
+                weakness: 'ممکن است گاهی جزئیات اجرایی یا محدودیت‌های زمان‌بندی را نادیده بگیرد.'
+            },
+            ME: {
+                id: 'ME',
+                name: 'ارزیاب (ناظر)',
+                enName: 'Monitor Evaluator',
+                category: 'THOUGHT',
+                categoryFa: 'تفکرمحور',
+                color: '#4f46e5', // indigo-600
+                bgLight: 'bg-indigo-50',
+                textCol: 'text-indigo-700',
+                borderCol: 'border-indigo-200',
+                icon: 'fa-magnifying-glass-chart',
+                desc: 'تحلیل‌گر، منطقی و بی‌طرف؛ گزینه‌ها و ریسک‌ها را با دقت بالا می‌سنجد.',
+                pmbokLink: 'مهارت تفکر انتقادی (Critical Thinking) و تحلیل ریسک و تصمیم‌گیری در PMBOK 8',
+                weakness: 'ممکن است در تصمیم‌گیری‌های فوری کمی کند باشد یا بیش‌ازحد نقد کند.'
+            },
+            SP: {
+                id: 'SP',
+                name: 'متخصص',
+                enName: 'Specialist',
+                category: 'THOUGHT',
+                categoryFa: 'تفکرمحور',
+                color: '#7c3aed', // violet-600
+                bgLight: 'bg-violet-50',
+                textCol: 'text-violet-700',
+                borderCol: 'border-violet-200',
+                icon: 'fa-microchip',
+                desc: 'دارای دانش تخصصی عمیق و متعهد به استانداردهای فنی و حرفه‌ای.',
+                pmbokLink: 'تأمین دانش فنی و عمق تخصصی در ساختار مهارت‌های T-Shaped در PMBOK 8',
+                weakness: 'تمرکز صرف روی حوزه تخصصی خود و دید کمتر نسبت به کل تصویر پروژه.'
+            },
+            SH: {
+                id: 'SH',
+                name: 'شکل‌دهنده',
+                enName: 'Shaper',
+                category: 'ACTION',
+                categoryFa: 'عمل‌گرا',
+                color: '#ea580c', // orange-600
+                bgLight: 'bg-orange-50',
+                textCol: 'text-orange-700',
+                borderCol: 'border-orange-200',
+                icon: 'fa-bolt',
+                desc: 'پرانرژی، چالش‌گر و نتیجه‌گرا؛ تیم را به سمت تحقق اهداف و عبور از موانع هدایت می‌کند.',
+                pmbokLink: 'تمرکز بر دستاوردها (Outcomes) و پیشبرد ضرب‌الاجل‌های حیاتی پروژه',
+                weakness: 'در شرایط پرفشار ممکن است ناشکیبا شود یا باعث ایجاد تنش در مباحثات گردد.'
+            },
+            IMP: {
+                id: 'IMP',
+                name: 'مجری (پیاده‌ساز)',
+                enName: 'Implementer',
+                category: 'ACTION',
+                categoryFa: 'عمل‌گرا',
+                color: '#d97706', // amber-600
+                bgLight: 'bg-amber-50',
+                textCol: 'text-amber-700',
+                borderCol: 'border-amber-200',
+                icon: 'fa-gears',
+                desc: 'منظم، ساختارمند و قابل‌اتکا؛ ایده‌ها را به برنامه‌های عملیاتی و بسته‌های کاری (WBS) تبدیل می‌کند.',
+                pmbokLink: 'طراحی ساختار شکست کار (WBS)، برنامه‌ریزی و اجرای منظم فعالیت‌های پروژه',
+                weakness: 'مقاومت نسبی در برابر تغییرات ناگهانی در برنامه‌های از پیش تعیین‌شده.'
+            },
+            CF: {
+                id: 'CF',
+                name: 'تمام‌کننده (تکمیل‌کننده)',
+                enName: 'Completer Finisher',
+                category: 'ACTION',
+                categoryFa: 'عمل‌گرا',
+                color: '#e11d48', // rose-600
+                bgLight: 'bg-rose-50',
+                textCol: 'text-rose-700',
+                borderCol: 'border-rose-200',
+                icon: 'fa-clipboard-check',
+                desc: 'دقیق، کمال‌گرا و پیگیر؛ خطاها را کشف کرده و تحویل بی‌نقص و به‌موقع خروجی‌ها را تضمین می‌کند.',
+                pmbokLink: 'ساخت کیفیت در فرآیندها و تحویل‌شدنی‌ها (Quality & Deliverables) در PMBOK 8',
+                weakness: 'نگرانی بیش‌ازحد درباره جزئیات و تمایل کمتر به تفویض اختیار به دیگران.'
+            },
+            CO: {
+                id: 'CO',
+                name: 'هماهنگ‌کننده',
+                enName: 'Co-ordinator',
+                category: 'PEOPLE',
+                categoryFa: 'ارتباط‌گرا',
+                color: '#059669', // emerald-600
+                bgLight: 'bg-emerald-50',
+                textCol: 'text-emerald-700',
+                borderCol: 'border-emerald-200',
+                icon: 'fa-sitemap',
+                desc: 'بالغ، بااعتمادبه‌نفس و تسهیل‌گر؛ اهداف را شفاف کرده و وظایف را بر اساس استعداد اعضا تقسیم می‌کند.',
+                pmbokLink: 'رهبری خدمت‌گزار (Servant Leadership)، تسهیل‌گری و تدوین ماتریس RACI در PMBOK 8',
+                weakness: 'ممکن است گاهی بخش زیادی از کارهای عملیاتی را به سایر اعضا واگذار کند.'
+            },
+            TW: {
+                id: 'TW',
+                name: 'همیار تیمی (تیم‌ساز)',
+                enName: 'Teamworker',
+                category: 'PEOPLE',
+                categoryFa: 'ارتباط‌گرا',
+                color: '#0d9488', // teal-600
+                bgLight: 'bg-teal-50',
+                textCol: 'text-teal-700',
+                borderCol: 'border-teal-200',
+                icon: 'fa-handshake-angle',
+                desc: 'همدل، حامی و دیپلماتیک؛ با هوش هیجانی بالا اصطکاک‌ها را کاهش داده و روحیه تیم را حفظ می‌کند.',
+                pmbokLink: 'هوش هیجانی (EI)، مدیریت تعارض و ایجاد امنیت روانی در تیم (PMBOK 8)',
+                weakness: 'در شرایط بحرانی ممکن است از اتخاذ تصمیمات تقابلی یا ناخوشایند اجتناب کند.'
+            },
+            RI: {
+                id: 'RI',
+                name: 'کاوشگر منابع',
+                enName: 'Resource Investigator',
+                category: 'PEOPLE',
+                categoryFa: 'ارتباط‌گرا',
+                color: '#16a34a', // green-600
+                bgLight: 'bg-green-50',
+                textCol: 'text-green-700',
+                borderCol: 'border-green-200',
+                icon: 'fa-network-wired',
+                desc: 'برون‌گرا، مشتاق و شبکه‌ساز؛ فرصت‌های جدید را کشف کرده و با ذی‌نفعان بیرونی مذاکره می‌کند.',
+                pmbokLink: 'تعامل مؤثر با ذی‌نفعان (Stakeholder Engagement) و شبکه‌سازی (Networking)',
+                weakness: 'پس از فروکش کردن هیجان اولیه پروژه، ممکن است تمرکز و پیگیری‌اش کاهش یابد.'
+            }
+        };
+
+        const ROLE_ORDER = ['SH', 'IMP', 'CF', 'CO', 'TW', 'RI', 'PL', 'ME', 'SP'];
+
+        /**
+         * 7 Authentic Sections of the Belbin Self-Perception Inventory
+         * Each section contains 9 statements mapped to the 9 roles.
+         */
+        const BELBIN_SECTIONS = [
+            {
+                id: 1,
+                title: 'بخش اول: مشارکت و ارزش‌آفرینی من در تیم پروژه',
+                prompt: 'فکر می‌کنم مشارکت اصلی من در یک تیم پروژه این است که:',
+                items: [
+                    { role: 'RI', text: 'به‌سرعت فرصت‌های جدید را شناسایی کرده و از آن‌ها به نفع پروژه بهره‌برداری می‌کنم.' },
+                    { role: 'TW', text: 'می‌توانم با افراد بسیار متفاوت و با سلایق گوناگون به خوبی کار و همدلی کنم.' },
+                    { role: 'PL', text: 'تولید ایده و ارائه راه‌حل‌های نوآورانه یکی از استعدادهای طبیعی من است.' },
+                    { role: 'CO', text: 'توانایی خوبی دارم که پتانسیل افراد را تشخیص دهم و از مشارکت آن‌ها برای تحقق اهداف تیم استفاده کنم.' },
+                    { role: 'CF', text: 'به دلیل پیگیری مستمر و دقت بالایی که دارم، کارها را همیشه به موقع و کامل به سرانجام می‌رسانم.' },
+                    { role: 'SH', text: 'حاضرم برای رسیدن به نتایج درست در پروژه، حتی با کمبود محبوبیت مقطعی روبه‌رو شوم و تیم را به حرکت وادارم.' },
+                    { role: 'IMP', text: 'به‌سرعت متوجه می‌شوم در موقعیت‌های آشنا چه راهکار عملی و ساختارمندی کارساز است.' },
+                    { role: 'ME', text: 'بدون تعصب یا سوگیری، می‌توانم دلایل منطقی برای گزینه‌ها و راه‌حل‌های جایگزین ارائه دهم.' },
+                    { role: 'SP', text: 'دانش تخصصی و مهارت‌های فنی کمیابی را به تیم پروژه اضافه می‌کنم.' }
+                ]
+            },
+            {
+                id: 2,
+                title: 'بخش دوم: چالش‌ها و کاستی‌های احتمالی در کار تیمی',
+                prompt: 'اگر یک نقطه ضعف احتمالی در کار تیمی داشته باشم، احتمالاً به این دلیل است که:',
+                items: [
+                    { role: 'IMP', text: 'اگر جلسات پروژه ساختارمند، منظم و دارای دستور جلسه مشخص نباشند، احساس ناآرامی می‌کنم.' },
+                    { role: 'CO', text: 'گاهی بیش‌ازحد به کسانی که دیدگاه معقولی دارند میدان می‌دهم، بدون اینکه خودم مستقیماً وارد جزئیات شوم.' },
+                    { role: 'RI', text: 'وقتی ایده جدیدی مطرح می‌شود، بیش‌ازحد هیجان‌زده می‌شوم و گاهی زیاد صحبت می‌کنم.' },
+                    { role: 'ME', text: 'نگاه تحلیلی و عینی من باعث می‌شود به سادگی و با شور و هیجان با دیگران هم‌صدا نشوم.' },
+                    { role: 'SH', text: 'وقتی باید کاری در پروژه فوراً پیش برود، گاهی قاطع و آمرانه برخورد می‌کنم.' },
+                    { role: 'TW', text: 'قرار گرفتن در جایگاه رهبری مستقیم و روبه‌رو شدن با تعارضات شدید برایم دشوار است.' },
+                    { role: 'PL', text: 'آن‌قدر غرق در ایده‌های بزرگ خودم می‌شوم که گاهی از جریان روزمره تیم جا می‌مانم.' },
+                    { role: 'CF', text: 'همکارانم فکر می‌کنند بیش‌ازحد نگران جزئیات ریز و احتمال بروز خطا در تحویل‌شدنی‌ها هستم.' },
+                    { role: 'SP', text: 'وقتی موضوع بحث خارج از حوزه تخصصی و فنی خودم باشد، تمایل کمتری به مشارکت نشان می‌دهم.' }
+                ]
+            },
+            {
+                id: 3,
+                title: 'بخش سوم: نحوه تعامل در اجرای پروژه مشترک',
+                prompt: 'وقتی در یک پروژه با سایر اعضا درگیر کار می‌شوم:',
+                items: [
+                    { role: 'CO', text: 'می‌توانم بر افراد تأثیر بگذارم و آن‌ها را هم‌سو کنم، بدون اینکه تحت فشارشان بگذارم.' },
+                    { role: 'CF', text: 'هوشیاری و دقت دائمی من مانع از بروز اشتباهات ناشی از بی‌دقتی یا سهل‌انگاری می‌شود.' },
+                    { role: 'SH', text: 'آماده‌ام به جلسه فشار بیاورم تا مطمئن شوم زمان را تلف نمی‌کنیم و هدف اصلی پروژه فراموش نمی‌شود.' },
+                    { role: 'PL', text: 'می‌توان روی من حساب کرد تا دیدگاهی کاملاً بدیع و خلاقانه به بحث اضافه کنم.' },
+                    { role: 'TW', text: 'همواره آماده حمایت از یک پیشنهاد خوب هستم، اگر به نفع منافع مشترک کل تیم باشد.' },
+                    { role: 'RI', text: 'مشتاقانه به دنبال یافتن جدیدترین ایده‌ها، منابع و تحولات بیرون از تیم هستم.' },
+                    { role: 'ME', text: 'معتقدم قدرت قضاوت منصفانه و تحلیل سرد و منطقی من به تصمیم‌گیری‌های درست تیم کمک می‌کند.' },
+                    { role: 'IMP', text: 'می‌توان به من تکیه کرد تا مطمئن شوید تمام کارهای اساسی و اجرایی به درستی سازمان‌دهی شده‌اند.' },
+                    { role: 'SP', text: 'در حوزه‌ای که به آن مسلط هستم، با تمام توان از استانداردهای حرفه‌ای کار دفاع می‌کنم.' }
+                ]
+            },
+            {
+                id: 4,
+                title: 'بخش چهارم: رویکرد و سبک رفتاری در تیم',
+                prompt: 'رویکرد و ویژگی بارز من در کارهای گروهی این است که:',
+                items: [
+                    { role: 'TW', text: 'علاقه آرامی به شناخت بهتر همکاران و ایجاد فضای صمیمی و امن در تیم دارم.' },
+                    { role: 'SH', text: 'از به چالش کشیدن دیدگاه‌های دیگران یا قرار گرفتن در موضع اقلیت ابایی ندارم.' },
+                    { role: 'ME', text: 'معمولاً می‌توانم استدلال محکمی برای رد کردن پیشنهادهای غیرمنطقی یا پرریسک بیاورم.' },
+                    { role: 'IMP', text: 'استعداد ویژه‌ای دارم که وقتی برنامه‌ای تصویب شد، آن را با نظم بالا به مرحله اجرا درآورم.' },
+                    { role: 'PL', text: 'تمایل دارم از راه‌حل‌های بدیهی و تکراری عبور کنم و راهکارهای غیرمنتظره را بیازمام.' },
+                    { role: 'CF', text: 'در هر کار تیمی که به عهده می‌گیرم، به دنبال کمال و بی‌نقص بودن خروجی هستم.' },
+                    { role: 'RI', text: 'دوست دارم از ارتباطات و شبکه‌های خارج از خودِ گروه برای پیشبرد کارها استفاده کنم.' },
+                    { role: 'CO', text: 'در حالی که به همه دیدگاه‌ها گوش می‌دهم، وقتی زمان تصمیم‌گیری برسد بدون تردید جمع‌بندی می‌کنم.' },
+                    { role: 'SP', text: 'تلاش می‌کنم دانش تخصصی خود را مدام به‌روز نگه دارم و مرجع فنی تیم باشم.' }
+                ]
+            },
+            {
+                id: 5,
+                title: 'بخش پنجم: عوامل انگیزشی و رضایت در محیط پروژه',
+                prompt: 'من در محیط پروژه بیشترین رضایت شغلی را زمانی کسب می‌کنم که:',
+                items: [
+                    { role: 'ME', text: 'از تجزیه‌وتحلیل موقعیت‌ها و سبک‌وسنگین کردن تمام احتمالات ممکن لذت می‌برم.' },
+                    { role: 'IMP', text: 'علاقه‌مندم راه‌حل‌های کاربردی و عملی برای مسائل اجرایی پروژه پیدا کنم.' },
+                    { role: 'TW', text: 'احساس کنم در تقویت روابط کاری خوب و کاهش تنش میان اعضا نقش مؤثری داشته‌ام.' },
+                    { role: 'SH', text: 'بتوانم تأثیر قوی و مستقیمی بر تصمیم‌گیری‌ها و سرعت پیشرفت پروژه بگذارم.' },
+                    { role: 'RI', text: 'فرصت ملاقات با افراد جدیدی را داشته باشم که دیدگاه‌ها و امکانات تازه‌ای دارند.' },
+                    { role: 'CO', text: 'بتوانم توافق و اجماع اعضا را بر سر اهداف و اولویت‌های کلیدی کار جلب کنم.' },
+                    { role: 'CF', text: 'در موقعیتی قرار بگیرم که بتوانم تمام تمرکز خود را معطوف به اتمام کامل یک وظیفه کنم.' },
+                    { role: 'PL', text: 'فضایی پیدا کنم که به قوه تخیل و تفکر خلاقانه‌ام میدان دهد.' },
+                    { role: 'SP', text: 'کاری به من سپرده شود که نیازمند مهارت و دانش تخصصی ویژه‌ام باشد.' }
+                ]
+            },
+            {
+                id: 6,
+                title: 'بخش ششم: واکنش در برابر چالش‌ها و محدودیت زمان',
+                prompt: 'اگر ناگهان وظیفه دشواری با زمان محدود و افراد ناآشنا به من محول شود:',
+                items: [
+                    { role: 'PL', text: 'ترجیح می‌دهم ابتدا در خلوت خودم فکر کنم تا راهی نو برای خروج از بن‌بست بیابم و سپس به گروه برگردم.' },
+                    { role: 'TW', text: 'حاضرم با فردی که مثبت‌ترین رویکرد را دارد همراه شوم تا جو تیم را آرام و همراه‌کننده نگه داریم.' },
+                    { role: 'CO', text: 'بلافاصله راهی برای کاستن از حجم کار از طریق تقسیم هوشمندانه وظایف بر اساس توان هر فرد پیدا می‌کنم.' },
+                    { role: 'CF', text: 'حس ذاتی من برای رعایت فوریت‌ها باعث می‌شود اجازه ندهم از برنامه زمان‌بندی عقب بمانیم.' },
+                    { role: 'ME', text: 'آرامش و خونسردی خود را حفظ می‌کنم و توان تفکر منطقی و بی‌طرفانه‌ام را از دست نمی‌دهم.' },
+                    { role: 'IMP', text: 'با وجود فشارهای محیطی، با ثبات قدم و طبق گام‌های مشخص کار را به پیش می‌برم.' },
+                    { role: 'SH', text: 'اگر ببینم گروه هیچ پیشرفتی ندارد، خودم قاطعانه هدایت خط مقدم کار را به دست می‌گیرم.' },
+                    { role: 'RI', text: 'فوراً بحث و تبادل نظر را باز می‌کنم تا با هم‌فکری دیگران، جرقه‌ای برای حرکت جدید بزنیم.' },
+                    { role: 'SP', text: 'سریعاً ابعاد فنی و تخصصی کار را بررسی کرده و استانداردهای لازم برای انجام آن را مشخص می‌کنم.' }
+                ]
+            },
+            {
+                id: 7,
+                title: 'بخش هفتم: نحوه حل مسئله و تصمیم‌گیری در جلسات تیمی',
+                prompt: 'در ارتباط با مسائلی که در جلسات و فعالیت‌های تیمی با آن‌ها روبه‌رو می‌شوم:',
+                items: [
+                    { role: 'SH', text: 'وقتی می‌بینم برخی افراد مانع پیشرفت کار می‌شوند، بی‌صبرانه‌تر واکنش نشان می‌دهم.' },
+                    { role: 'ME', text: 'برخی ممکن است از من انتقاد کنند که بیش‌ازحد تحلیل‌گر هستم و کمتر به شهود تکیه می‌کنم.' },
+                    { role: 'CF', text: 'تمایل من به اینکه کارها حتماً با کیفیت کامل انجام شوند، گاهی سرعت حرکت را کم می‌کند.' },
+                    { role: 'RI', text: 'خیلی زود از کارهای تکراری خسته می‌شوم و نیازمند محرک‌ها و ارتباطات تازه هستم.' },
+                    { role: 'IMP', text: 'اگر اهداف نهایی از ابتدا شفاف و مشخص نباشند، شروع کردن کار برایم دشوار است.' },
+                    { role: 'PL', text: 'گاهی اوقات در توضیح دادن و متقاعد کردن دیگران درباره نکات پیچیده‌ای که به ذهنم می‌رسد، چالش دارم.' },
+                    { role: 'CO', text: 'آگاهانه از دیگران می‌خواهم کارهایی را انجام دهند که خودم به تنهایی از عهده آن‌ها برنمی‌آیم.' },
+                    { role: 'TW', text: 'وقتی با مخالفت جدی روبه‌رو می‌شوم، تمایلی به پافشاری روی نقطه نظر شخصی‌ام به قیمت برهم خوردن آرامش تیم ندارم.' },
+                    { role: 'SP', text: 'معمولاً جزئیات تخصصی کارم را آن‌قدر تشریح می‌کنم که شاید حوصله سایر اعضا سر برود.' }
+                ]
+            }
+        ];
+
+        // State Management (In-Memory as per strict requirements)
+        let currentAllocations = {}; // { sectionId: { roleId: points } }
+        let participants = [];       // Array of { id, name, jobTitle, timestamp, scores, categoryScores, primaryRole, secondaryRole, group }
+        let selectedStudentId = null;
+
+        // Initialize empty allocations for the 7 sections
+        function initFormAllocations() {
+            currentAllocations = {};
+            BELBIN_SECTIONS.forEach(sec => {
+                currentAllocations[sec.id] = {};
+                sec.items.forEach(item => {
+                    currentAllocations[sec.id][item.role] = 0;
+                });
+            });
+        }
+
+        // Toast Helper (No browser alert/confirm)
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                success: 'bg-emerald-600 text-white border-emerald-700',
+                error: 'bg-rose-600 text-white border-rose-700',
+                warning: 'bg-amber-500 text-slate-950 border-amber-600',
+                info: 'bg-pmp-navy text-white border-pmp-blue'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-triangle-exclamation',
+                warning: 'fa-circle-exclamation',
+                info: 'fa-circle-info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-xl shadow-xl border ${colors[type]} text-xs sm:text-sm font-bold transition-all duration-300 transform translate-y-0 opacity-100`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-lg shrink-0"></i>
+                <span class="leading-relaxed">${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Switch between Tab 1 and Tab 2
+        function switchTab(tabNum) {
+            const tab1 = document.getElementById('tab-content-1');
+            const tab2 = document.getElementById('tab-content-2');
+            const btn1 = document.getElementById('tab-btn-1');
+            const btn2 = document.getElementById('tab-btn-2');
+
+            if (tabNum === 1) {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-pmp-gold text-slate-950 shadow-lg';
+                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-white/10 text-white hover:bg-white/20';
+            } else {
+                tab1.classList.add('hidden');
+                tab2.classList.remove('hidden');
+                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-pmp-gold text-slate-950 shadow-lg';
+                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-white/10 text-white hover:bg-white/20';
+                renderResultsDashboard();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Get sum of points in a section
+        function getSectionSum(secId) {
+            const sec = currentAllocations[secId] || {};
+            return Object.values(sec).reduce((a, b) => a + b, 0);
+        }
+
+        // Render the 7 Questionnaire Sections in Tab 1
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            BELBIN_SECTIONS.forEach(sec => {
+                const secCard = document.createElement('div');
+                secCard.id = `section-card-${sec.id}`;
+                secCard.className = 'bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden transition-all';
+
+                let itemsHtml = '';
+                sec.items.forEach((item, idx) => {
+                    itemsHtml += `
+                        <div id="row-${sec.id}-${item.role}" class="p-3.5 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+                            <div class="flex items-start gap-3">
+                                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+                                <p class="text-sm text-slate-800 font-medium leading-relaxed">${item.text}</p>
+                            </div>
+                            <div class="flex items-center justify-end gap-2 shrink-0 self-end sm:self-center">
+                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', -1)" 
+                                    class="w-9 h-9 rounded-xl bg-white border border-slate-300 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600 text-slate-600 font-bold flex items-center justify-center transition shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-minus text-xs"></i>
+                                </button>
+                                <span id="val-${sec.id}-${item.role}" class="w-10 text-center font-black text-base text-slate-700">0</span>
+                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', 1)" 
+                                    class="w-9 h-9 rounded-xl bg-white border border-slate-300 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-600 text-slate-600 font-bold flex items-center justify-center transition shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                secCard.innerHTML = `
+                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-md bg-pmp-navy text-white text-xs font-bold">بخش ${sec.id} از ۷</span>
+                                <h3 class="font-extrabold text-slate-800 text-base">${sec.title}</h3>
+                            </div>
+                            <p class="text-xs sm:text-sm text-pmp-royal font-semibold mt-1">${sec.prompt}</p>
+                        </div>
+                        <div class="flex items-center gap-3 self-end sm:self-center">
+                            <button type="button" onclick="resetSection(${sec.id})" class="text-xs text-slate-400 hover:text-rose-500 transition px-2 py-1" title="پاک کردن امتیازات این بخش">
+                                <i class="fa-solid fa-rotate-left ml-1"></i>ریست
+                            </button>
+                            <div id="sec-badge-${sec.id}" class="px-3.5 py-1.5 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 text-xs font-extrabold flex items-center gap-1.5">
+                                <i class="fa-solid fa-coins"></i>
+                                <span>امتیاز باقی‌مانده: <strong id="sec-rem-${sec.id}" class="text-sm">10</strong> از 10</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5 space-y-2.5">
+                        ${itemsHtml}
+                    </div>
+                `;
+
+                container.appendChild(secCard);
+            });
+
+            updateProgressUI();
+        }
+
+        // Adjust point for a statement in a section
+        function adjustPoint(secId, roleId, delta) {
+            const currentVal = currentAllocations[secId][roleId];
+            const currentSum = getSectionSum(secId);
+
+            if (delta > 0 && currentSum >= 10) {
+                showToast(`در بخش ${secId} هر ۱۰ امتیاز تخصیص داده شده است. برای افزودن به این گزینه، ابتدا از گزینه دیگری کم کنید.`, 'warning');
+                return;
+            }
+            if (delta < 0 && currentVal <= 0) {
+                return;
+            }
+
+            const newVal = currentVal + delta;
+            currentAllocations[secId][roleId] = newVal;
+
+            updateSectionUI(secId);
+            updateProgressUI();
+        }
+
+        // Reset a single section
+        function resetSection(secId) {
+            Object.keys(currentAllocations[secId]).forEach(role => {
+                currentAllocations[secId][role] = 0;
+            });
+            updateSectionUI(secId);
+            updateProgressUI();
+        }
+
+        // Update UI of a single section
+        function updateSectionUI(secId) {
+            const sum = getSectionSum(secId);
+            const rem = 10 - sum;
+
+            Object.keys(currentAllocations[secId]).forEach(roleId => {
+                const val = currentAllocations[secId][roleId];
+                const valEl = document.getElementById(`val-${secId}-${roleId}`);
+                const rowEl = document.getElementById(`row-${secId}-${roleId}`);
+
+                if (valEl) valEl.textContent = val;
+                if (rowEl) {
+                    if (val > 0) {
+                        rowEl.className = 'p-3.5 sm:p-4 rounded-xl border-2 border-pmp-royal bg-sky-50/70 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm';
+                        valEl.className = 'w-10 text-center font-black text-lg text-pmp-royal';
+                    } else {
+                        rowEl.className = 'p-3.5 sm:p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50';
+                        valEl.className = 'w-10 text-center font-black text-base text-slate-700';
+                    }
+                }
+            });
+
+            const badgeEl = document.getElementById(`sec-badge-${secId}`);
+            if (badgeEl) {
+                if (rem === 0) {
+                    badgeEl.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-extrabold flex items-center gap-1.5';
+                    badgeEl.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>تکمیل شد (۱۰ از ۱۰ امتیاز)</span>`;
+                } else {
+                    badgeEl.className = 'px-3.5 py-1.5 rounded-xl bg-amber-100 text-amber-800 border border-amber-300 text-xs font-extrabold flex items-center gap-1.5';
+                    badgeEl.innerHTML = `<i class="fa-solid fa-coins"></i><span>امتیاز باقی‌مانده: <strong class="text-sm">${rem}</strong> از 10</span>`;
+                }
+            }
+        }
+
+        // Update Sticky Progress Bar & Section Pills
+        function updateProgressUI() {
+            let completedCount = 0;
+            let totalPoints = 0;
+            const pillsContainer = document.getElementById('section-pills');
+            pillsContainer.innerHTML = '';
+
+            BELBIN_SECTIONS.forEach(sec => {
+                const sum = getSectionSum(sec.id);
+                totalPoints += sum;
+                if (sum === 10) completedCount++;
+
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.onclick = () => {
+                    document.getElementById(`section-card-${sec.id}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+
+                if (sum === 10) {
+                    pill.className = 'px-2.5 py-1 rounded-lg bg-emerald-500 text-white text-xs font-bold shadow-sm transition hover:opacity-90 flex items-center gap-1';
+                    pill.innerHTML = `<i class="fa-solid fa-check text-[10px]"></i> بخش ${sec.id}`;
+                } else if (sum > 0) {
+                    pill.className = 'px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition hover:bg-amber-200';
+                    pill.textContent = `بخش ${sec.id} (${sum}/10)`;
+                } else {
+                    pill.className = 'px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium transition hover:bg-slate-200';
+                    pill.textContent = `بخش ${sec.id}`;
+                }
+                pillsContainer.appendChild(pill);
+            });
+
+            document.getElementById('completed-sections-count').textContent = completedCount;
+            document.getElementById('overall-points-text').textContent = `${totalPoints} از 70 امتیاز تخصیص یافته`;
+            const pct = Math.round((totalPoints / 70) * 100);
+            document.getElementById('overall-progress-bar').style.width = `${pct}%`;
+        }
+
+        // Helper: Fill random realistic points for current form (for quick testing)
+        function fillRandomSampleForCurrentForm() {
+            const nameInput = document.getElementById('student-name');
+            if (!nameInput.value.trim()) {
+                const sampleNames = ['سارا احمدی', 'امیرحسین کاظمی', 'نیلوفر محمدی', 'رضا شریفی', 'مریم حسینی'];
+                nameInput.value = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+                document.getElementById('student-role').value = 'مدیر پروژه / شرکت‌کننده کارگاه PMBOK 8';
+            }
+
+            // Pick 2 dominant roles for realistic distribution
+            const dominant1 = ROLE_ORDER[Math.floor(Math.random() * ROLE_ORDER.length)];
+            let dominant2 = ROLE_ORDER[Math.floor(Math.random() * ROLE_ORDER.length)];
+            if (dominant2 === dominant1) dominant2 = 'CO';
+
+            BELBIN_SECTIONS.forEach(sec => {
+                resetSection(sec.id);
+                currentAllocations[sec.id][dominant1] = 5;
+                currentAllocations[sec.id][dominant2] = 3;
+                const otherRoles = ROLE_ORDER.filter(r => r !== dominant1 && r !== dominant2);
+                const randomThird = otherRoles[Math.floor(Math.random() * otherRoles.length)];
+                currentAllocations[sec.id][randomThird] = 2;
+                updateSectionUI(sec.id);
+            });
+
+            updateProgressUI();
+            showToast('امتیازات هر ۷ بخش به صورت آزمایشی تکمیل شد. اکنون می‌توانید دکمه ثبت نهایی را بزنید.', 'success');
+        }
+
+        // Calculate Scores & Create Participant Object
+        function createParticipantRecord(name, jobTitle, roleScoresObj, customGroup = null) {
+            const scores = { ...roleScoresObj };
+
+            // Category totals (Action, People, Thought)
+            const categoryScores = {
+                ACTION: (scores.SH || 0) + (scores.IMP || 0) + (scores.CF || 0),
+                PEOPLE: (scores.CO || 0) + (scores.TW || 0) + (scores.RI || 0),
+                THOUGHT: (scores.PL || 0) + (scores.ME || 0) + (scores.SP || 0)
+            };
+
+            // Sort roles descending
+            const sortedRoles = [...ROLE_ORDER].sort((a, b) => scores[b] - scores[a]);
+            const primaryRole = sortedRoles[0];
+            const secondaryRole = sortedRoles[1];
+
+            // Determine dominant category
+            const sortedCats = Object.entries(categoryScores).sort((a, b) => b[1] - a[1]);
+            const dominantCategory = sortedCats[0][0];
+
+            return {
+                id: 'stu_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                name: name.trim(),
+                jobTitle: (jobTitle || 'دانشجوی کارگاه PMBOK 8').trim(),
+                scores,
+                categoryScores,
+                primaryRole,
+                secondaryRole,
+                dominantCategory,
+                group: customGroup || (participants.length % 2 === 0 ? 1 : 2)
+            };
+        }
+
+        // Submit the Belbin Test from Tab 1
+        function submitBelbinTest() {
+            const nameInput = document.getElementById('student-name');
+            const roleInput = document.getElementById('student-role');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                showToast('لطفاً ابتدا نام و نام خانوادگی خود را در کادر بالای صفحه وارد کنید.', 'error');
+                nameInput.focus();
+                return;
+            }
+
+            // Validate all 7 sections have 10 points
+            for (const sec of BELBIN_SECTIONS) {
+                const sum = getSectionSum(sec.id);
+                if (sum !== 10) {
+                    showToast(`در «بخش ${sec.id}» مجموع امتیازات شما ${sum} از ۱۰ است. لطفاً دقیقاً ۱۰ امتیاز در این بخش تخصیص دهید.`, 'error');
+                    document.getElementById(`section-card-${sec.id}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+            }
+
+            // Sum scores across all 7 sections
+            const totalScores = {};
+            ROLE_ORDER.forEach(r => totalScores[r] = 0);
+
+            BELBIN_SECTIONS.forEach(sec => {
+                ROLE_ORDER.forEach(r => {
+                    totalScores[r] += (currentAllocations[sec.id][r] || 0);
+                });
+            });
+
+            const newParticipant = createParticipantRecord(name, roleInput.value, totalScores);
+            participants.push(newParticipant);
+            selectedStudentId = newParticipant.id;
+
+            // Reset form for next student if needed
+            nameInput.value = '';
+            roleInput.value = '';
+            initFormAllocations();
+            renderQuestions();
+
+            // Update badge and auto-balance groups if more than 1 student
+            updateParticipantsBadge();
+            if (participants.length >= 2) {
+                autoDivideIntoTwoGroups(true);
+            }
+
+            showToast(`آزمون «${newParticipant.name}» با موفقیت ثبت شد! نقش غالب: ${BELBIN_ROLES[newParticipant.primaryRole].name}`, 'success');
+            switchTab(2);
+        }
+
+        function updateParticipantsBadge() {
+            document.getElementById('participants-badge').textContent = participants.length;
+            document.getElementById('all-students-count-label').textContent = participants.length;
+        }
+
+        // Generate Compact Shareable Code for a Student (for Online Webinar Chat)
+        function generateStudentShareCode(student) {
+            const payload = {
+                n: student.name,
+                j: student.jobTitle,
+                s: student.scores
+            };
+            const jsonStr = JSON.stringify(payload);
+            const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+            return `PMP8-${encoded}`;
+        }
+
+        // Copy Student Code to Clipboard
+        function copyStudentCode(studentId) {
+            const stu = participants.find(p => p.id === studentId);
+            if (!stu) return;
+            const code = generateStudentShareCode(stu);
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast(`کد نتیجه «${stu.name}» کپی شد! می‌توانید آن را در چت کلاس آنلاین برای استاد ارسال کنید.`, 'success');
+        }
+
+        // Open/Close Import Code Modal
+        function openCodeModal() {
+            const modal = document.getElementById('code-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeCodeModal() {
+            const modal = document.getElementById('code-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Import Student Codes pasted by Instructor
+        function importStudentCodes() {
+            const rawText = document.getElementById('import-codes-input').value.trim();
+            if (!rawText) {
+                showToast('لطفاً حداقل یک کد نتیجه را در کادر وارد کنید.', 'warning');
+                return;
+            }
+
+            const tokens = rawText.split(/[\s\n,]+/).filter(t => t.startsWith('PMP8-'));
+            if (tokens.length === 0) {
+                showToast('کد معتبری با پیشوند PMP8- یافت نشد.', 'error');
+                return;
+            }
+
+            let added = 0;
+            tokens.forEach(token => {
+                try {
+                    const b64 = token.replace('PMP8-', '');
+                    const jsonStr = decodeURIComponent(escape(atob(b64)));
+                    const data = JSON.parse(jsonStr);
+                    if (data && data.n && data.s) {
+                        const newStu = createParticipantRecord(data.n, data.j || '', data.s);
+                        participants.push(newStu);
+                        selectedStudentId = newStu.id;
+                        added++;
+                    }
+                } catch (e) {
+                    console.error('Invalid token:', token, e);
+                }
+            });
+
+            if (added > 0) {
+                document.getElementById('import-codes-input').value = '';
+                closeCodeModal();
+                updateParticipantsBadge();
+                autoDivideIntoTwoGroups(true);
+                renderResultsDashboard();
+                showToast(`${added} دانشجو با موفقیت به لیست نتایج و گروه‌بندی اضافه شدند.`, 'success');
+            } else {
+                showToast('خطا در خواندن کدهای وارد شده.', 'error');
+            }
+        }
+
+        // Load 8 Realistic Demo Students for Workshop Demonstration
+        function loadDemoStudents() {
+            const demoList = [
+                {
+                    name: 'آرش کامرانی',
+                    job: 'مدیر پروژه ارشد',
+                    scores: { CO: 19, SH: 14, ME: 10, IMP: 9, TW: 7, RI: 5, PL: 3, CF: 2, SP: 1 }
+                },
+                {
+                    name: 'مهسا تهرانی',
+                    job: 'کارشناس ارشد برنامه‌ریزی و کنترل پروژه',
+                    scores: { IMP: 20, CF: 16, ME: 11, SP: 8, CO: 6, TW: 4, SH: 3, PL: 1, RI: 1 }
+                },
+                {
+                    name: 'پویا رستگار',
+                    job: 'مهندس سیستم و معمار راهکار',
+                    scores: { PL: 22, SP: 15, ME: 12, RI: 8, SH: 5, CO: 3, IMP: 3, TW: 1, CF: 1 }
+                },
+                {
+                    name: 'نگار فرهمند',
+                    job: 'تسهیل‌گر چابک (Scrum Master)',
+                    scores: { TW: 19, RI: 16, CO: 14, PL: 7, IMP: 5, CF: 4, ME: 2, SH: 2, SP: 1 }
+                },
+                {
+                    name: 'کیوان نادری',
+                    job: 'مدیر اجرایی کارگاه',
+                    scores: { SH: 21, IMP: 16, CF: 11, CO: 8, RI: 6, ME: 4, TW: 2, PL: 1, SP: 1 }
+                },
+                {
+                    name: 'الهام سلیمانی',
+                    job: 'تحلیل‌گر کسب‌وکار و ریسک',
+                    scores: { ME: 20, PL: 14, CF: 12, SP: 10, IMP: 6, TW: 4, CO: 2, RI: 1, SH: 1 }
+                },
+                {
+                    name: 'سینا مرادی',
+                    job: 'مدیر قراردادها و تدارکات',
+                    scores: { RI: 20, CO: 15, TW: 11, SH: 9, ME: 6, IMP: 4, PL: 3, CF: 1, SP: 1 }
+                },
+                {
+                    name: 'پریسا جاوید',
+                    job: 'کارشناس تضمین کیفیت پروژه (QA)',
+                    scores: { CF: 21, SP: 16, IMP: 13, ME: 9, TW: 5, CO: 3, PL: 1, RI: 1, SH: 1 }
+                }
+            ];
+
+            participants = [];
+            demoList.forEach(d => {
+                participants.push(createParticipantRecord(d.name, d.job, d.scores));
+            });
+
+            selectedStudentId = participants[0].id;
+            updateParticipantsBadge();
+            autoDivideIntoTwoGroups(true);
+            switchTab(2);
+            showToast('۸ دانشجوی نمونه با پروفایل‌های متنوع بلبین بارگذاری و به ۲ گروه متوازن تقسیم شدند.', 'info');
+        }
+
+        // Select Student for Detailed View
+        function selectStudentForDetail(stuId) {
+            selectedStudentId = stuId;
+            renderSelectedStudentDetail();
+        }
+
+        // Toggle Student Group (1 or 2) Manually
+        function toggleStudentGroup(stuId) {
+            const stu = participants.find(p => p.id === stuId);
+            if (!stu) return;
+            stu.group = stu.group === 1 ? 2 : 1;
+            renderResultsDashboard();
+            showToast(`«${stu.name}» به گروه ${stu.group === 1 ? 'اول (الف)' : 'دوم (ب)'} منتقل شد.`, 'info');
+        }
+
+        // Delete a Student Record
+        function removeStudent(stuId) {
+            participants = participants.filter(p => p.id !== stuId);
+            if (selectedStudentId === stuId) {
+                selectedStudentId = participants.length > 0 ? participants[0].id : null;
+            }
+            updateParticipantsBadge();
+            renderResultsDashboard();
+        }
+
+        /**
+         * Smart 2-Group Balancing Algorithm (PMBOK 8 Cross-Functional Team Composition)
+         * Ensures both Group 1 and Group 2 have:
+         * - Equal size (or diff by at most 1)
+         * - Balanced representation of Action, People, and Thought dimensions
+         */
+        function autoDivideIntoTwoGroups(silent = false) {
+            if (participants.length === 0) {
+                if (!silent) showToast('ابتدا باید حداقل ۲ دانشجو در لیست وجود داشته باشد.', 'warning');
+                return;
+            }
+
+            // Group participants by their dominant category (ACTION, PEOPLE, THOUGHT)
+            // and sort within each category by their primary role score
+            const sorted = [...participants].sort((a, b) => {
+                if (a.dominantCategory !== b.dominantCategory) {
+                    return a.dominantCategory.localeCompare(b.dominantCategory);
+                }
+                return b.scores[b.primaryRole] - a.scores[a.primaryRole];
+            });
+
+            // Snake-draft style assignment to balance both headcount and dimensions
+            let g1Count = 0;
+            let g2Count = 0;
+            let g1Cats = { ACTION: 0, PEOPLE: 0, THOUGHT: 0 };
+            let g2Cats = { ACTION: 0, PEOPLE: 0, THOUGHT: 0 };
+
+            sorted.forEach((stu) => {
+                const maxPerGroup = Math.ceil(sorted.length / 2);
+                if (g1Count >= maxPerGroup) {
+                    stu.group = 2;
+                    g2Count++;
+                    g2Cats[stu.dominantCategory] += stu.categoryScores[stu.dominantCategory];
+                } else if (g2Count >= maxPerGroup) {
+                    stu.group = 1;
+                    g1Count++;
+                    g1Cats[stu.dominantCategory] += stu.categoryScores[stu.dominantCategory];
+                } else {
+                    // Assign to whichever group has less of this student's dominant category
+                    if (g1Cats[stu.dominantCategory] <= g2Cats[stu.dominantCategory]) {
+                        stu.group = 1;
+                        g1Count++;
+                        g1Cats[stu.dominantCategory] += stu.categoryScores[stu.dominantCategory];
+                    } else {
+                        stu.group = 2;
+                        g2Count++;
+                        g2Cats[stu.dominantCategory] += stu.categoryScores[stu.dominantCategory];
+                    }
+                }
+            });
+
+            renderResultsDashboard();
+            if (!silent) {
+                showToast('دانشجویان بر اساس توازن ابعاد سه‌گانه بلبین (عمل‌گرا، ارتباط‌گرا و تفکرمحور) به ۲ گروه متوازن تقسیم شدند!', 'success');
+            }
+        }
+
+        // Render Complete Tab 2 Dashboard
+        function renderResultsDashboard() {
+            const emptyState = document.getElementById('empty-results-state');
+            const wrapper = document.getElementById('results-dashboard-wrapper');
+
+            if (participants.length === 0) {
+                emptyState.classList.remove('hidden');
+                wrapper.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            wrapper.classList.remove('hidden');
+
+            if (!selectedStudentId || !participants.some(p => p.id === selectedStudentId)) {
+                selectedStudentId = participants[participants.length - 1].id;
+            }
+
+            // Populate dropdown
+            const selectEl = document.getElementById('active-student-select');
+            selectEl.innerHTML = participants.map(p => 
+                `<option value="${p.id}" ${p.id === selectedStudentId ? 'selected' : ''}>${p.name} (${BELBIN_ROLES[p.primaryRole].name})</option>`
+            ).join('');
+
+            renderSelectedStudentDetail();
+            renderAllStudentsGrid();
+            renderTwoGroupsBoard();
+        }
+
+        // Render Section A: Detailed Bar Chart for the Selected Student
+        function renderSelectedStudentDetail() {
+            const stu = participants.find(p => p.id === selectedStudentId);
+            if (!stu) return;
+
+            const container = document.getElementById('selected-student-detail');
+            const pRole = BELBIN_ROLES[stu.primaryRole];
+            const sRole = BELBIN_ROLES[stu.secondaryRole];
+
+            // Find max score to scale bar chart nicely (at least 25 for realistic scale)
+            const maxRoleScore = Math.max(25, ...Object.values(stu.scores));
+
+            // Build Horizontal Bars for all 9 Roles
+            const barsHtml = ROLE_ORDER.map(roleKey => {
+                const roleInfo = BELBIN_ROLES[roleKey];
+                const score = stu.scores[roleKey] || 0;
+                const pctOf70 = Math.round((score / 70) * 100);
+                const widthPct = Math.round((score / maxRoleScore) * 100);
+                const isPrimary = roleKey === stu.primaryRole;
+                const isSecondary = roleKey === stu.secondaryRole;
+
+                return `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs sm:text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs shrink-0" style="background-color: ${roleInfo.color}">
+                                    <i class="fa-solid ${roleInfo.icon}"></i>
+                                </span>
+                                <span class="font-bold text-slate-800">${roleInfo.name}</span>
+                                <span class="text-[11px] text-slate-400 hidden sm:inline">(${roleInfo.enName})</span>
+                                ${isPrimary ? `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-extrabold">نقش اول (غالب)</span>` : ''}
+                                ${isSecondary ? `<span class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300 text-[10px] font-bold">نقش دوم (پشتیبان)</span>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-400">(${pctOf70}%)</span>
+                                <span class="font-black text-sm text-slate-900 w-12 text-left">${score} <span class="text-[10px] font-normal text-slate-500">امتیاز</span></span>
+                            </div>
+                        </div>
+                        <div class="w-full h-4 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60">
+                            <div class="h-full rounded-full bar-transition" style="width: ${Math.max(widthPct, 2)}%; background-color: ${roleInfo.color}"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Category percentages
+            const actPct = Math.round((stu.categoryScores.ACTION / 70) * 100);
+            const peoPct = Math.round((stu.categoryScores.PEOPLE / 70) * 100);
+            const thoPct = Math.round((stu.categoryScores.THOUGHT / 70) * 100);
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Left Column: Profile Summary & 3 Dimensions Breakdown (5 cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-14 h-14 rounded-2xl pmp-gradient text-white font-black text-xl flex items-center justify-center shadow-md">
+                                        ${stu.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-black text-lg text-slate-900">${stu.name}</h4>
+                                        <p class="text-xs text-slate-500">${stu.jobTitle}</p>
+                                        <div class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold ${stu.group === 1 ? 'bg-sky-100 text-sky-900' : 'bg-amber-100 text-amber-900'}">
+                                            <i class="fa-solid fa-users-line"></i>
+                                            <span>تخصیص فعلی: ${stu.group === 1 ? 'گروه اول (تیم الف)' : 'گروه دوم (تیم ب)'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="copyStudentCode('${stu.id}')" class="px-3 py-2 rounded-xl bg-white hover:bg-sky-50 text-pmp-navy border border-slate-300 text-xs font-bold transition shadow-sm flex items-center gap-1.5 shrink-0 no-print" title="کپی کد نتیجه برای ارسال در چت کلاس">
+                                    <i class="fa-solid fa-copy text-pmp-royal"></i>
+                                    <span>کپی کد نتیجه</span>
+                                </button>
+                            </div>
+
+                            <!-- Primary & Secondary Role Highlight Cards -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                                <div class="p-3.5 rounded-xl border ${pRole.borderCol} ${pRole.bgLight}">
+                                    <div class="text-[11px] font-bold text-slate-500">نقش طبیعی و غالب (اول):</div>
+                                    <div class="font-black text-base ${pRole.textCol} mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-solid ${pRole.icon}"></i>
+                                        <span>${pRole.name}</span>
+                                    </div>
+                                    <div class="text-xs text-slate-600 mt-1.5 leading-relaxed">${pRole.desc}</div>
+                                </div>
+                                <div class="p-3.5 rounded-xl border ${sRole.borderCol} ${sRole.bgLight}">
+                                    <div class="text-[11px] font-bold text-slate-500">نقش پشتیبان و مکمل (دوم):</div>
+                                    <div class="font-black text-base ${sRole.textCol} mt-0.5 flex items-center gap-1.5">
+                                        <i class="fa-solid ${sRole.icon}"></i>
+                                        <span>${sRole.name}</span>
+                                    </div>
+                                    <div class="text-xs text-slate-600 mt-1.5 leading-relaxed">${sRole.desc}</div>
+                                </div>
+                            </div>
+
+                            <!-- PMBOK 8 Alignment Box -->
+                            <div class="p-3.5 rounded-xl bg-white border border-slate-200 text-xs space-y-1.5">
+                                <div class="font-extrabold text-pmp-navy flex items-center gap-1.5">
+                                    <i class="fa-solid fa-book-open text-pmp-gold"></i>
+                                    <span>جایگاه در تیم پروژه بر اساس PMBOK® 8th Edition:</span>
+                                </div>
+                                <p class="text-slate-600 leading-relaxed">${pRole.pmbokLink}</p>
+                                <div class="text-rose-600/90 pt-1">
+                                    <strong>نقطه ضعف مجاز (Allowable Weakness):</strong> ${pRole.weakness}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3 Main Dimensions Mini Bar Chart -->
+                        <div class="p-5 rounded-2xl bg-slate-900 text-white space-y-3">
+                            <h5 class="font-bold text-sm text-sky-200 flex items-center justify-between">
+                                <span>توازن ۳ بُعد کلان شخصیتی در پروژه</span>
+                                <span class="text-[11px] text-slate-400">مجموع: ۷۰ امتیاز</span>
+                            </h5>
+                            <div class="space-y-2.5 text-xs">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-bold text-amber-400"><i class="fa-solid fa-bolt ml-1"></i> بُعد عمل‌گرا (شکل‌دهنده، مجری، تمام‌کننده)</span>
+                                        <span class="font-bold">${stu.categoryScores.ACTION} امتیاز (${actPct}%)</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-amber-500 rounded-full" style="width: ${actPct}%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-bold text-emerald-400"><i class="fa-solid fa-handshake-angle ml-1"></i> بُعد ارتباط‌گرا (هماهنگ‌کننده، همیار، کاوشگر)</span>
+                                        <span class="font-bold">${stu.categoryScores.PEOPLE} امتیاز (${peoPct}%)</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-emerald-500 rounded-full" style="width: ${peoPct}%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="font-bold text-sky-400"><i class="fa-solid fa-brain ml-1"></i> بُعد تفکرمحور (ایده‌پرداز، ارزیاب، متخصص)</span>
+                                        <span class="font-bold">${stu.categoryScores.THOUGHT} امتیاز (${thoPct}%)</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full bg-sky-500 rounded-full" style="width: ${thoPct}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Full 9-Role Bar Chart (7 cols) -->
+                    <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h4 class="font-extrabold text-slate-800 text-base">نمودار میله‌ای امتیازات در ۹ نقش تیمی بلبین</h4>
+                            <span class="text-xs text-slate-400">مرتب‌شده بر اساس ۳ حوزه عمل‌گرا، ارتباط‌گرا و تفکرمحور</span>
+                        </div>
+                        <div class="space-y-3.5">
+                            ${barsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Section B: Vertical Bar Charts Grid for All Students
+        function renderAllStudentsGrid() {
+            const grid = document.getElementById('all-students-charts-grid');
+            grid.innerHTML = '';
+
+            participants.forEach(stu => {
+                const pRole = BELBIN_ROLES[stu.primaryRole];
+                const sRole = BELBIN_ROLES[stu.secondaryRole];
+                const maxVal = Math.max(22, ...Object.values(stu.scores));
+
+                // Vertical bars for all 9 roles
+                const verticalBars = ROLE_ORDER.map(rKey => {
+                    const rInfo = BELBIN_ROLES[rKey];
+                    const score = stu.scores[rKey] || 0;
+                    const heightPct = Math.round((score / maxVal) * 100);
+                    return `
+                        <div class="flex-1 flex flex-col items-center group relative">
+                            <span class="text-[10px] font-bold text-slate-600 mb-1">${score}</span>
+                            <div class="w-full max-w-[28px] h-28 bg-slate-100 rounded-t-lg flex items-end overflow-hidden border border-b-0 border-slate-200 p-0.5">
+                                <div class="w-full rounded-t-md bar-transition" style="height: ${Math.max(heightPct, 4)}%; background-color: ${rInfo.color}"></div>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-700 mt-1.5 truncate max-w-full" title="${rInfo.name}">${rInfo.name.split(' ')[0]}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between gap-4 hover:shadow-md transition';
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-pmp-navy text-white font-bold flex items-center justify-center text-sm shrink-0">
+                                ${stu.name.charAt(0)}
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-slate-900 text-sm sm:text-base cursor-pointer hover:text-pmp-royal" onclick="selectStudentForDetail('${stu.id}'); document.getElementById('selected-student-detail').scrollIntoView({behavior:'smooth'})">
+                                    ${stu.name}
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                    <span class="px-2 py-0.5 rounded-md text-[11px] font-bold ${pRole.bgLight} ${pRole.textCol}">
+                                        ۱. ${pRole.name} (${stu.scores[stu.primaryRole]})
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-600">
+                                        ۲. ${sRole.name} (${stu.scores[stu.secondaryRole]})
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 no-print">
+                            <button onclick="toggleStudentGroup('${stu.id}')" class="px-2.5 py-1 rounded-lg text-xs font-extrabold transition border ${stu.group === 1 ? 'bg-sky-100 text-sky-900 border-sky-300 hover:bg-sky-200' : 'bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200'}" title="کلیک برای جابه‌جایی بین گروه الف و ب">
+                                ${stu.group === 1 ? 'گروه A' : 'گروه B'} <i class="fa-solid fa-repeat mr-1 text-[10px]"></i>
+                            </button>
+                            <button onclick="removeStudent('${stu.id}')" class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition" title="حذف">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 9-Role Vertical Bar Chart -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <div class="flex items-end justify-between gap-1.5 pt-2">
+                            ${verticalBars}
+                        </div>
+                    </div>
+
+                    <!-- 3-Dimension Proportion Strip -->
+                    <div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-between text-[11px] font-bold text-slate-600 border border-slate-200/60">
+                        <span class="text-amber-700">عمل‌گرا: ${stu.categoryScores.ACTION}</span>
+                        <span>•</span>
+                        <span class="text-emerald-700">ارتباط‌گرا: ${stu.categoryScores.PEOPLE}</span>
+                        <span>•</span>
+                        <span class="text-sky-700">تفکرمحور: ${stu.categoryScores.THOUGHT}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Render Section C: Two-Group Division Board (Group 1 vs Group 2)
+        function renderTwoGroupsBoard() {
+            const g1 = participants.filter(p => p.group === 1);
+            const g2 = participants.filter(p => p.group === 2);
+
+            document.getElementById('group-1-count').textContent = `${g1.length} عضو`;
+            document.getElementById('group-2-count').textContent = `${g2.length} عضو`;
+
+            renderSingleGroupColumn(g1, 'group-1-balance-box', 'group-1-members', 'A');
+            renderSingleGroupColumn(g2, 'group-2-balance-box', 'group-2-members', 'B');
+        }
+
+        function renderSingleGroupColumn(groupMembers, balanceBoxId, membersBoxId, groupCode) {
+            const balanceBox = document.getElementById(balanceBoxId);
+            const membersBox = document.getElementById(membersBoxId);
+
+            if (groupMembers.length === 0) {
+                balanceBox.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">هنوز عضوی در این گروه قرار نگرفته است.</div>`;
+                membersBox.innerHTML = '';
+                return;
+            }
+
+            // Sum category points for this group
+            let sumAction = 0, sumPeople = 0, sumThought = 0;
+            groupMembers.forEach(m => {
+                sumAction += m.categoryScores.ACTION;
+                sumPeople += m.categoryScores.PEOPLE;
+                sumThought += m.categoryScores.THOUGHT;
+            });
+            const total = Math.max(1, sumAction + sumPeople + sumThought);
+            const actPct = Math.round((sumAction / total) * 100);
+            const peoPct = Math.round((sumPeople / total) * 100);
+            const thoPct = Math.max(0, 100 - actPct - peoPct);
+
+            balanceBox.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span>توازن ترکیبی تیم ${groupCode}:</span>
+                        <div class="flex items-center gap-3 text-[11px]">
+                            <span class="text-amber-600">عمل‌گرا: ${actPct}%</span>
+                            <span class="text-emerald-600">ارتباط‌گرا: ${peoPct}%</span>
+                            <span class="text-sky-600">تفکرمحور: ${thoPct}%</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-3 rounded-full overflow-hidden flex bg-slate-100">
+                        <div class="h-full bg-amber-500" style="width: ${actPct}%" title="عمل‌گرا"></div>
+                        <div class="h-full bg-emerald-500" style="width: ${peoPct}%" title="ارتباط‌گرا"></div>
+                        <div class="h-full bg-sky-600" style="width: ${thoPct}%" title="تفکرمحور"></div>
+                    </div>
+                </div>
+            `;
+
+            membersBox.innerHTML = groupMembers.map((stu, idx) => {
+                const pRole = BELBIN_ROLES[stu.primaryRole];
+                const sRole = BELBIN_ROLES[stu.secondaryRole];
+                return `
+                    <div class="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">${idx + 1}</span>
+                            <div>
+                                <div class="font-extrabold text-slate-800 text-sm">${stu.name}</div>
+                                <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                    <span class="px-2 py-0.5 rounded text-[11px] font-bold ${pRole.bgLight} ${pRole.textCol}">
+                                        <i class="fa-solid ${pRole.icon} ml-1"></i>نقش اول: ${pRole.name}
+                                    </span>
+                                    <span class="text-[11px] text-slate-500">
+                                        (پشتیبان: ${sRole.name})
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="toggleStudentGroup('${stu.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition shrink-0 no-print" title="انتقال به گروه مقابل">
+                            <i class="fa-solid fa-arrows-left-right ml-1"></i>انتقال
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize on window load
+        window.onload = function () {
+            initFormAllocations();
+            renderQuestions();
+        };
+    </script>
+</body>
+</html>
