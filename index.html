@@ -1,950 +1,2297 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آزمون نقش‌های تیمی بلبین | کارگاه PMBOK® 8th - پیشرو مدیریت پیران (PMPiran)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Vazirmatn Persian Font -->
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
-                    },
-                    colors: {
-                        pmp: {
-                            navy: '#0B2447',
-                            blue: '#19376D',
-                            royal: '#0284C7',
-                            light: '#E0F2FE',
-                            gold: '#F59E0B',
-                            amber: '#D97706',
-                            accent: '#EA580C'
-                        }
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سامانه جامع ارزیابی و استقرار PMO | ارزیابی نیازمندی‌ها و بلوغ خدمات</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN for interactive visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts: Vazirmatn -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81',
             }
+          }
         }
-    </script>
-    <style>
-        body { font-family: 'Vazirmatn', Tahoma, sans-serif; background-color: #f1f5f9; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-        .pmp-gradient { background: linear-gradient(135deg, #0B2447 0%, #19376D 55%, #0369A1 100%); }
-        .gold-gradient { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
-        .bar-transition { transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1), height 0.7s cubic-bezier(0.22, 1, 0.36, 1); }
-        @media print { .no-print { display: none !important; } body { background: white !important; } }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-critical { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+    .badge-high { background-color: #ffedd5; color: #9a3412; border: 1px solid #fb923c; }
+    .badge-medium { background-color: #fef9c3; color: #854d0e; border: 1px solid #facc15; }
+    .badge-low { background-color: #dcfce7; color: #166534; border: 1px solid #4ade80; }
+  </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-slate-50 antialiased selection:bg-indigo-500 selection:text-white">
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-5 left-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-    <!-- Admin Password Modal (Protects Tab 2) -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
-            <div class="pmp-gradient text-white p-5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-user-shield text-pmp-gold text-xl"></i>
-                    <h3 class="font-bold text-lg">ورود به پنل ادمین (ویژه اساتید کارگاه)</h3>
-                </div>
-                <button onclick="closeAdminModal()" class="text-white/80 hover:text-white transition p-1">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            <form onsubmit="verifyAdminPassword(event)" class="p-6 space-y-4">
-                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    تب دوم (دیتابیس تجمیعی شرکت‌کنندگان و تقسیم‌بندی تیم‌ها) فقط مخصوص اساتید است. لطفاً رمز عبور را وارد کنید:
-                </p>
-                <div>
-                    <label for="admin-pass-input" class="block text-xs font-bold text-slate-700 mb-1.5">رمز عبور پنل مدیریت:</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-400">
-                            <i class="fa-solid fa-key"></i>
-                        </span>
-                        <input type="password" id="admin-pass-input" dir="ltr" placeholder="••••••••" 
-                            class="w-full pr-10 pl-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal focus:ring-2 focus:ring-pmp-royal/20 outline-none text-center font-mono text-base tracking-widest">
-                    </div>
-                </div>
-                <div class="flex items-center justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeAdminModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition">
-                        انصراف
-                    </button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl gold-gradient text-white text-sm font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
-                        <i class="fa-solid fa-unlock-keyhole"></i>
-                        <span>ورود به پنل مدیریت</span>
-                    </button>
-                </div>
-            </form>
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-xl sticky top-0 z-50 border-b border-indigo-500/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
         </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-black tracking-tight flex items-center gap-2">
+            سامانه جامع ارزیابی PMO و بلوغ خدمات
+            <span class="text-xs bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 px-2 py-0.5 rounded-full font-mono">PMI PMO Standard</span>
+          </h1>
+          <p class="text-xs text-slate-300">طراحی شده بر مبنای متدولوژی PMO Value Ring™ (پیوست‌های X2 و X3)</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2 text-xs">
+        <button id="btn-demo-fill" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg shadow transition font-medium flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          تکمیل خودکار داده نمونه
+        </button>
+        <button id="btn-reset" class="bg-slate-800 hover:bg-red-950/80 hover:text-red-300 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">
+          بازنشانی
+        </button>
+      </div>
     </div>
 
-    <!-- Top Branded Header (PMPiran) - Cleaned as requested -->
-    <header class="pmp-gradient text-white shadow-xl relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 relative z-10">
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-white shadow-lg flex flex-col items-center justify-center p-2 border-2 border-pmp-gold shrink-0">
-                        <span class="font-black text-lg tracking-tighter text-pmp-navy leading-none">PMP<span class="text-pmp-gold">iran</span></span>
-                        <span class="text-[9px] font-bold text-slate-500 mt-1">پیشرو مدیریت پیران</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">
-                            سامانه ارزیابی نقش‌های تیمی بلبین (Belbin Team Roles)
-                        </h1>
-                        <p class="text-xs sm:text-sm text-sky-100/90 mt-1">
-                            شرکت مهندسی مشاور پیشرو مدیریت پیران
-                        </p>
-                    </div>
-                </div>
-            </div>
+    <!-- Navigation Tabs -->
+    <nav class="bg-slate-900/90 backdrop-blur border-t border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-1.5" id="nav-tabs">
+        <button data-tab="tab-1" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 bg-indigo-600 text-white shadow-md">
+          <span class="w-5 h-5 rounded-full bg-white/20 text-xs flex items-center justify-center font-bold">۱</span>
+          ارزیابی ۹۰ گویه دردها و چالش‌ها
+        </button>
+        <button data-tab="tab-2" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 text-slate-300 hover:bg-slate-800">
+          <span class="w-5 h-5 rounded-full bg-slate-700 text-xs flex items-center justify-center font-bold">۲</span>
+          اولویت‌بندی ۳۰ دستاورد PMO
+        </button>
+        <button data-tab="tab-3" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 text-slate-300 hover:bg-slate-800">
+          <span class="w-5 h-5 rounded-full bg-slate-700 text-xs flex items-center justify-center font-bold">۳</span>
+          نیازمندی سرویس‌های ۲۶ گانه
+        </button>
+        <button data-tab="tab-4" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 text-slate-300 hover:bg-slate-800">
+          <span class="w-5 h-5 rounded-full bg-slate-700 text-xs flex items-center justify-center font-bold">۴</span>
+          سنجش بلوغ خدمات و داشبورد مدیریتی
+        </button>
+      </div>
+    </nav>
+  </header>
 
-            <!-- Main Navigation Tabs -->
-            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-4 no-print">
-                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                    <button id="tab-btn-1" onclick="switchTab(1)" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-pmp-gold text-slate-950 shadow-lg">
-                        <i class="fa-solid fa-pen-to-square text-base"></i>
-                        <span>تب ۱: تست بلبین و دریافت کارنامه شخصی</span>
-                    </button>
-                    <button id="tab-btn-2" onclick="requestAdminTab()" class="flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 bg-white/10 text-white hover:bg-white/20">
-                        <i id="tab2-lock-icon" class="fa-solid fa-lock text-amber-300 text-sm"></i>
-                        <span>تب ۲: پنل مدیریت اساتید</span>
-                        <span id="participants-badge" class="px-2 py-0.5 text-xs rounded-full bg-amber-400 text-slate-950 font-extrabold">0</span>
-                    </button>
-                </div>
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-2 text-sm">
+      <span id="toast-icon">ℹ️</span>
+      <span id="toast-text">پیام سامانه</span>
+    </div>
+
+    <!-- ================= PAGE 1 ================= -->
+    <section id="tab-1" class="tab-content block space-y-6">
+      <!-- Info Banner -->
+      <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-r-4 border-amber-500 p-4 sm:p-5 rounded-2xl shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="p-2 bg-amber-500 text-white rounded-xl">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <div class="text-sm leading-relaxed space-y-1">
+            <h2 class="font-bold text-amber-900 text-base">راهنمای امتیازدهی به ۹۰ گویه تشخیصی چالش‌های سازمانی</h2>
+            <p class="text-amber-800">
+              لطفاً به هر یک از ۹۰ عبارت زیر بر اساس وضعیت واقعی سازمان خود از <strong>۱ تا ۵</strong> امتیاز دهید.
+              تمامی سوالات با ادبیات آسیب‌شناسانه تدوین شده‌اند؛ به نحوی که <strong class="text-red-700">امتیاز ۵ نشان‌دهنده حداکثر وخامت اوضاع، چالش و بحران در آن حوزه</strong> و <strong class="text-emerald-700">امتیاز ۱ نشان‌دهنده نبود مشکل و وضعیت کاملاً مطلوب</strong> است.
+            </p>
+            <div class="flex flex-wrap items-center gap-4 pt-2 text-xs font-semibold text-slate-700">
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> ۱: عدم موافقت کامل (بدون چالش)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-teal-400 inline-block"></span> ۲: موافقت کم (چالش اندک)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> ۳: تا حدودی موافق (چالش متوسط)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> ۴: موافق (چالش زیاد)</span>
+              <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-600 inline-block"></span> ۵: کاملاً موافق (بحرانی و وخیم)</span>
             </div>
+          </div>
         </div>
-    </header>
+      </div>
 
-    <!-- Main Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <!-- Progress bar -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-bold text-slate-700">وضعیت تکمیل پرسشنامه:</span>
+          <span id="answered-count-badge" class="bg-indigo-100 text-indigo-700 font-bold px-2.5 py-0.5 rounded-full text-xs">۰ از ۹۰</span>
+        </div>
+        <div class="w-full sm:w-64 bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+          <div id="progress-bar-fill" class="bg-indigo-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
 
-        <!-- ========================================== -->
-        <!-- TAB 1: STUDENT LOGIN & BELBIN TEST         -->
-        <!-- ========================================== -->
-        <section id="tab-content-1" class="space-y-6">
+      <!-- 30 Outcome Blocks Container with questions -->
+      <div id="questions-container" class="space-y-6"></div>
 
-            <!-- Student Post-Submission Personal Summary & Full Charts Card -->
-            <div id="student-completion-banner" class="hidden bg-white rounded-2xl shadow-xl border-2 border-emerald-500 overflow-hidden">
-                <!-- Populated dynamically with full charts and analysis -->
+      <!-- Action Footer for Tab 1 -->
+      <div class="flex justify-end pt-4">
+        <button onclick="switchTab('tab-2')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition">
+          <span>مشاهده نتایج تحلیل و اولویت‌بندی دستاوردها</span>
+          <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= PAGE 2 ================= -->
+    <section id="tab-2" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">اولویت‌بندی ۳۰ دستاورد PMO (Outcomes) بر مبنای شدت وخامت</h2>
+          <p class="text-sm text-slate-500 mt-1">
+            برآیند امتیاز ۳ سوال مربوط به هر سابجکت محاسبه و از بیشترین امتیاز (بحرانی‌ترین دردها) تا کمترین چیده شده است.
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1.5 rounded-lg font-mono">
+            مقیاس: ۳ تا ۱۵ (یا ۰ تا ۱۰۰٪ وخامت)
+          </span>
+        </div>
+      </div>
+
+      <!-- Top Critical Summary Chart -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          ۱۰ دستاورد با بیشترین نیاز به مداخله فوری PMO
+        </h3>
+        <div class="h-72 w-full">
+          <canvas id="outcomesTopChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 30 Outcomes Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-sm">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5 text-center w-16">رتبه</th>
+                <th class="p-3.5 w-16 text-center">کد</th>
+                <th class="p-3.5">عنوان دستاورد PMO (Subject / Outcome)</th>
+                <th class="p-3.5 text-center w-32">مجموع امتیاز (از ۱۵)</th>
+                <th class="p-3.5 text-center w-28">درصد وخامت</th>
+                <th class="p-3.5 text-center w-36">سطح فوریت</th>
+                <th class="p-3.5 w-48">نوار بصری شدت</th>
+              </tr>
+            </thead>
+            <tbody id="outcomes-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="switchTab('tab-1')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl transition">
+          بازگشت به پرسشنامه
+        </button>
+        <button onclick="switchTab('tab-3')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+          مشاهده اولویت‌بندی ۲۶ سرویس پیشنهادی
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= PAGE 3 ================= -->
+    <section id="tab-3" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">اولویت‌بندی سرویس‌های ۲۶ گانه PMO (Appendix X2)</h2>
+          <p class="text-sm text-slate-500 mt-1">
+            بر مبنای ماتریس استاندارد، امتیاز هر یک از ۳۰ دستاورد به سرویس‌های درمان‌کننده تخصیص داده شده و بر مبنای مقیاس ۱ تا ۱۰۰ نرمال‌سازی شده است.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportServicesCSV()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            دریافت خروجی CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Services Priority Chart -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h3 class="text-sm font-bold text-slate-700 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          نمودار نیاز سازمانی به خدمات PMO (امتیاز ۱ تا ۱۰۰)
+        </h3>
+        <div class="h-80 w-full">
+          <canvas id="servicesNeedChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Services Table -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-right text-sm">
+            <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+              <tr>
+                <th class="p-3.5 text-center w-16">رتبه نیاز</th>
+                <th class="p-3.5 w-20 text-center">شناسه سرویس</th>
+                <th class="p-3.5">عنوان سرویس PMO (فارسی / انگلیسی)</th>
+                <th class="p-3.5 text-center w-28">دسته سرویس</th>
+                <th class="p-3.5 text-center w-28">تعداد ارجاع</th>
+                <th class="p-3.5 text-center w-36">نمره تجمیعی</th>
+                <th class="p-3.5 text-center w-32">امتیاز نیاز (۰ تا ۱۰۰)</th>
+                <th class="p-3.5 w-44">میزان اولویت استقرار</th>
+              </tr>
+            </thead>
+            <tbody id="services-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center pt-2">
+        <button onclick="switchTab('tab-2')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl transition">
+          بازگشت به دستاوردها
+        </button>
+        <button onclick="switchTab('tab-4')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition">
+          ورود به ارزیابی بلوغ خدمات (صفحه چهارم)
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= PAGE 4 ================= -->
+    <section id="tab-4" class="tab-content hidden space-y-6">
+      <!-- Intro Guidance -->
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800">ارزیابی بلوغ خدمات ۲۶ گانه PMO (Appendix X3) و تحلیل شکاف</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              سرویس‌ها به ترتیب اولویت نیاز (محاسبه شده در تب قبلی) مرتب شده‌اند. بر روی هر سرویس کلیک کنید تا تعریف و ۵ سطح بلوغ آن نمایش داده شود. در جلسه تصمیم‌گیری، 
+              <span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-bold text-xs">سطح فعلی (Current)</span>
+              و 
+              <span class="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-xs">سطح مطلوب (Desired)</span>
+              را انتخاب نمایید.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-quick-maturity" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              مقداردهی نمونه سطوح بلوغ (اجماع پیشنهادی)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accordion List for 26 Services -->
+      <div id="services-maturity-accordion" class="space-y-4"></div>
+
+      <!-- ================= MANAGEMENT DASHBOARD (APPENDIX X3 FORMULAS) ================= -->
+      <div class="bg-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-2xl border border-slate-800 space-y-8 mt-10">
+        <div class="border-b border-slate-800 pb-5 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">PMO Executive Cockpit</span>
+            <h3 class="text-2xl font-black tracking-tight mt-1">داشبورد جامع مدیریت استراتژیک، تاکتیکی و عملیاتی PMO</h3>
+            <p class="text-xs text-slate-400 mt-1">محاسبه دقیق درصد بلوغ بر اساس فرمول استاندارد پیوست X3: (مجموع امتیازات کسب شده ÷ حداکثر امتیاز ممکن) × ۱۰۰</p>
+          </div>
+          <div class="bg-slate-800 px-4 py-2 rounded-2xl border border-slate-700 flex items-center gap-4 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> بلوغ فعلی (Current)</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-400"></span> بلوغ مطلوب (Target)</span>
+          </div>
+        </div>
+
+        <!-- 3 Dimension KPI Cards (Strategic, Tactical, Operational) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Strategic Services Card -->
+          <div class="bg-slate-800/80 backdrop-blur rounded-2xl p-5 border border-slate-700/80 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-lg border border-purple-500/30">خدمات استراتژیک (۱ تا ۷)</span>
+              <span class="text-xs text-slate-400">۷ سرویس (حداکثر ۳۵ امتیاز)</span>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ فعلی:</span>
+                  <span id="kpi-strat-curr-text" class="font-mono font-bold text-blue-400">0% (0/35)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-strat-curr-bar" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ مطلوب:</span>
+                  <span id="kpi-strat-targ-text" class="font-mono font-bold text-emerald-400">0% (0/35)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-strat-targ-bar" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-700/60 flex items-center justify-between text-xs">
+              <span class="text-slate-400">شکاف بلوغ (Gap):</span>
+              <span id="kpi-strat-gap" class="font-bold text-amber-400 font-mono">0%</span>
+            </div>
+          </div>
+
+          <!-- Tactical Services Card -->
+          <div class="bg-slate-800/80 backdrop-blur rounded-2xl p-5 border border-slate-700/80 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-lg border border-sky-500/30">خدمات تاکتیکی (۸ تا ۱۲)</span>
+              <span class="text-xs text-slate-400">۵ سرویس (حداکثر ۲۵ امتیاز)</span>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ فعلی:</span>
+                  <span id="kpi-tact-curr-text" class="font-mono font-bold text-blue-400">0% (0/25)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-tact-curr-bar" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ مطلوب:</span>
+                  <span id="kpi-tact-targ-text" class="font-mono font-bold text-emerald-400">0% (0/25)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-tact-targ-bar" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-700/60 flex items-center justify-between text-xs">
+              <span class="text-slate-400">شکاف بلوغ (Gap):</span>
+              <span id="kpi-tact-gap" class="font-bold text-amber-400 font-mono">0%</span>
+            </div>
+          </div>
+
+          <!-- Operational Services Card -->
+          <div class="bg-slate-800/80 backdrop-blur rounded-2xl p-5 border border-slate-700/80 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded-lg border border-amber-500/30">خدمات عملیاتی (۱۳ تا ۲۶)</span>
+              <span class="text-xs text-slate-400">۱۴ سرویس (حداکثر ۷۰ امتیاز)</span>
+            </div>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ فعلی:</span>
+                  <span id="kpi-oper-curr-text" class="font-mono font-bold text-blue-400">0% (0/70)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-oper-curr-bar" class="bg-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-300">بلوغ مطلوب:</span>
+                  <span id="kpi-oper-targ-text" class="font-mono font-bold text-emerald-400">0% (0/70)</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div id="kpi-oper-targ-bar" class="bg-emerald-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-700/60 flex items-center justify-between text-xs">
+              <span class="text-slate-400">شکاف بلوغ (Gap):</span>
+              <span id="kpi-oper-gap" class="font-bold text-amber-400 font-mono">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+          <!-- 3-Domain Radar / Bar Comparison Chart -->
+          <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700">
+            <h4 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/></svg>
+              مقایسه درصد بلوغ سه لایه استراتژیک، تاکتیک و آپریشنال
+            </h4>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="maturityDomainChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Overall PMO Maturity Overview -->
+          <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700 flex flex-col justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                خلاصه شاخص کل بلوغ سازمان (Overall Maturity Index)
+              </h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                کل امتیاز ممکن برای ۲۶ سرویس برابر با <strong>۱۳۰ امتیاز</strong> است (۲۶ ضربدر ۵). نمودار زیر شکاف تجمیعی کل قابلیت‌های PMO را نمایش می‌دهد.
+              </p>
             </div>
 
-            <!-- Step 1: Student Login / Profile Card (Name, Phone & Email mandatory) -->
-            <div id="student-login-card" class="bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-lg bg-pmp-navy text-white font-bold flex items-center justify-center text-sm">۱</span>
-                        <div>
-                            <h2 class="font-bold text-slate-800 text-base sm:text-lg">ورود اطلاعات شرکت‌کننده</h2>
-                            <p class="text-xs text-slate-500">برای شروع آزمون و دریافت کارنامه تحلیلی کامل، لطفاً اطلاعات زیر را تکمیل کنید.</p>
-                        </div>
-                    </div>
-                    <span class="text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-lg text-xs font-bold">
-                        * ورود نام، شماره موبایل و ایمیل الزامی است
-                    </span>
-                </div>
-
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
-                        <div>
-                            <label for="student-name" class="block text-sm font-bold text-slate-700 mb-2">
-                                نام و نام خانوادگی <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="text" id="student-name" placeholder="مثال: علی رضایی" 
-                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-slate-800 font-medium">
-                        </div>
-                        <div>
-                            <label for="student-phone" class="block text-sm font-bold text-slate-700 mb-2">
-                                شماره موبایل <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="tel" id="student-phone" dir="ltr" placeholder="09123456789" 
-                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-right font-mono text-slate-800">
-                        </div>
-                        <div>
-                            <label for="student-email" class="block text-sm font-bold text-slate-700 mb-2">
-                                ایمیل <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="email" id="student-email" dir="ltr" placeholder="example@email.com" 
-                                class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:border-pmp-royal outline-none text-right font-mono text-slate-800">
-                        </div>
-                    </div>
-                </div>
+            <div class="py-4 space-y-4">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-300 font-medium">شاخص کل بلوغ فعلی سازمان:</span>
+                <span id="overall-curr-pct" class="font-bold font-mono text-xl text-blue-400">0%</span>
+              </div>
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-slate-300 font-medium">شاخص کل بلوغ مطلوب سازمان:</span>
+                <span id="overall-targ-pct" class="font-bold font-mono text-xl text-emerald-400">0%</span>
+              </div>
+              <div class="flex items-center justify-between text-sm pt-2 border-t border-slate-700">
+                <span class="text-slate-300 font-medium">فاصله تا وضعیت آرمانی (Gap):</span>
+                <span id="overall-gap-pct" class="font-bold font-mono text-xl text-amber-400">0%</span>
+              </div>
             </div>
 
-            <!-- Overall Progress Sticky Bar -->
-            <div class="sticky top-2 z-30 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-3 w-full sm:w-auto">
-                    <div class="w-10 h-10 rounded-xl bg-pmp-navy text-white flex items-center justify-center font-bold shrink-0">
-                        <span id="completed-sections-count">0</span>/7
-                    </div>
-                    <div class="flex-1 sm:w-64">
-                        <div class="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                            <span>پیشرفت تکمیل پرسشنامه</span>
-                            <span id="overall-points-text">0 از 70 امتیاز تخصیص یافته</span>
-                        </div>
-                        <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
-                            <div id="overall-progress-bar" class="h-full bg-gradient-to-l from-pmp-gold to-emerald-500 bar-transition" style="width: 0%"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="section-pills" class="flex items-center gap-1.5 flex-wrap justify-center">
-                    <!-- Populated by JS -->
-                </div>
+            <div class="flex justify-end">
+              <button onclick="window.print()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-xl transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                چاپ و دریافت نسخه گزارش رسمی (PDF)
+              </button>
             </div>
+          </div>
+        </div>
 
-            <!-- Step 2: The 7 Belbin Sections Container -->
-            <div id="questions-container" class="space-y-6">
-                <!-- Populated dynamically by JS -->
-            </div>
+        <!-- 26 Services Maturity Gap Bar Chart -->
+        <div class="bg-slate-800/60 p-5 rounded-2xl border border-slate-700">
+          <h4 class="text-sm font-bold text-slate-200 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+            مقایسه سطح فعلی و مطلوب تک‌تک ۲۶ سرویس PMO (مرتب شده بر اساس اولویت نیاز سازمان)
+          </h4>
+          <div class="h-96 w-full overflow-x-auto">
+            <canvas id="allServicesMaturityChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <!-- Submit Button Card -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
-                        <i class="fa-solid fa-check-double"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-slate-800">پایان پاسخ‌گویی و دریافت کارنامه شخصی</h3>
-                        <p class="text-xs text-slate-500">پس از تکمیل اطلاعات و تخصیص امتیازات، روی دکمه کلیک کنید.</p>
-                    </div>
-                </div>
-                <button onclick="submitBelbinTest()" class="w-full sm:w-auto px-8 py-4 rounded-xl gold-gradient text-white font-extrabold text-base shadow-lg hover:shadow-xl transition flex items-center justify-center gap-3">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>ثبت آزمون و مشاهده کامل نمودارها و تحلیل‌ها</span>
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-            </div>
+  </main>
 
-        </section>
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+    سامانه ارزیابی استقرار و بلوغ PMO • منطبق بر آخرین استاندارد جهانی PMO Practice Guide و PMO Value Ring
+  </footer>
 
-        <!-- ========================================== -->
-        <!-- TAB 2: ADMIN PANEL & TEAM DIVISION         -->
-        <!-- ========================================== -->
-        <section id="tab-content-2" class="hidden space-y-6">
+  <!-- ================= LOGIC & DATA SCRIPT ================= -->
+  <script>
+    /* -------------------------------------------------------------
+       1. DATA STRUCTURE: 30 OUTCOMES & 90 QUESTIONS (Strictly Negative Phrasing)
+       Each outcome has exactly 3 questions. Higher score (5) = greater severity.
+    ------------------------------------------------------------- */
+    const OUTCOMES = [
+      {
+        id: 1,
+        title: "دسترسی بهتر به منابع انسانی متخصص",
+        en: "Better Availability of Skilled Resources",
+        recommendedServices: [10, 12, 18],
+        questions: [
+          "یافتن و نگه‌داشت مدیران پروژه و برنامه‌های ماهر و توانمند در سازمان ما دشوار است.",
+          "کمبود مدیران پروژه با تجربه، به‌طور مکرر به عنوان بروز مشکل در اجرای پروژه‌ها می‌شود.",
+          "سطح مهارت و شایستگی تیم‌های مدیریت پروژه/برنامه در سازمان، رضایت‌بخش نیست."
+        ]
+      },
+      {
+        id: 2,
+        title: "مدیریت بهتر تغییرات سازمانی",
+        en: "Better Organizational Change Management",
+        recommendedServices: [3, 5, 26],
+        questions: [
+          "سازمان در مواجهه با تغییرات عمده ناشی از پروژه‌ها یا سیستم‌ها با به‌صورت روان و موثر مدیریت نمی‌کند.",
+          "در زمان اجرای ابتکارات و تغییرات جدید با مقاومت کارمندان مواجه می‌شویم.",
+          "شیوه‌های فعلی مدیریت تغییر در سازمان از اثربخشی مطلوبی برخوردار نیست."
+        ]
+      },
+      {
+        id: 3,
+        title: "کنترل بهتر بر تیم‌های پروژه",
+        en: "Better Control Over Project Teams",
+        recommendedServices: [9, 10, 19, 21],
+        questions: [
+          "ساختارهای گزارش‌دهی در تیم‌های پروژه شفاف و مشخص نیست.",
+          "در پاسخ‌گو نگه‌داشتن اعضای تیم پروژه نسبت به مسئولیت‌هایشان با چالش مواجه هستیم.",
+          "مدیریت تیم‌های پروژه در سازمان از اثربخشی مناسبی برخوردار نیست."
+        ]
+      },
+      {
+        id: 4,
+        title: "شفافیت بهتر در نقش‌ها و مسئولیت‌ها",
+        en: "Better Definition of Roles and Responsibilities",
+        recommendedServices: [4, 9],
+        questions: [
+          "در تیم‌های پروژه، ابهام یا هم‌پوشانی در نقش‌ها و مسئولیت‌ها به‌طور مکرر مشاهده می‌شود.",
+          "اعضای تیم پروژه درک روشنی از نقش و سهم خود در پروژه‌ها ندارند.",
+          "تخصیص وظایف و اجرای آن‌ها در تیم‌های پروژه به‌صورت کارآمد انجام نمی‌شود."
+        ]
+      },
+      {
+        id: 5,
+        title: "اولویت‌بندی بهتر پروژه‌ها",
+        en: "Better Project Prioritization",
+        recommendedServices: [1, 2, 6, 7],
+        questions: [
+          "سازمان در توانایی تمرکز بر پروژه‌های با بیشترین اهمیت و رتبه، ناتوان است.",
+          "منابع سازمان اغلب به‌صورت غیربهینه و پراکنده بین پروژه‌های مختلف تخصیص می‌یابد.",
+          "سازمان در مدیریت و ایجاد توازن میان اولویت‌های متعارض پروژه‌ها عملکرد موثری ندارد."
+        ]
+      },
+      {
+        id: 6,
+        title: "کیفیت بهتر نتایج پروژه‌ها",
+        en: "Better Quality of Project Results",
+        recommendedServices: [9, 13, 19, 23, 25],
+        questions: [
+          "ذینفعان معمولاً از کیفیت خروجی‌ها و تحویل‌دادنی‌های پروژه رضایت ندارند.",
+          "نتایج ضعیف پروژه‌ها، به اعتبار سازمان آسیب وارد کرده است.",
+          "پروژه‌ها به‌صورت مستمر الزامات و انتظارات کیفی را برآورده نمی‌کنند."
+        ]
+      },
+      {
+        id: 7,
+        title: "مدیریت بهتر استعدادها",
+        en: "Better Talent Management",
+        recommendedServices: [10, 12, 18],
+        questions: [
+          "جذب و نگه‌داشت مدیران پروژه توانمند برای سازمان با چالش‌های همراه است.",
+          "سازمان در توسعه و پرورش درونی استعدادهای مدیریت پروژه عملکرد مناسبی ندارد.",
+          "نرخ ترک خدمت نیروهای مدیریت پروژه، تاثیر منفی بر عملکرد سازمان گذاشته است."
+        ]
+      },
+      {
+        id: 8,
+        title: "انتقال موثر دانش",
+        en: "Effective Knowledge Transfer",
+        recommendedServices: [8, 9, 12, 18],
+        questions: [
+          "سازمان به‌صورت کارآمد تجربیات موفق مدیریت پروژه را ثبت و به اشتراک نمی‌گذارد.",
+          "با خروج نیروهای کلیدی، بخش زیادی از دانش فنی سازمان از دست می‌رود.",
+          "رویه‌ها و شیوه‌های مدیریت پروژه در واحدها و تیم‌های مختلف سازمان یکسان و هماهنگ نیست."
+        ]
+      },
+      {
+        id: 9,
+        title: "تصمیم‌گیری اثربخش‌تر",
+        en: "Enhanced Decision-Making",
+        recommendedServices: [1, 4, 7, 16],
+        questions: [
+          "اطلاعات پروژه‌ها در اختیار تصمیم‌گیران، به‌موقع و دقیق نیست.",
+          "کمبود اطلاعات بروز پروژه‌ها، تصمیم‌گیری آگاهانه را با مشکل مواجه می‌کند.",
+          "داده‌های مورد استفاده در تصمیم‌گیری‌های مرتبط با پروژه‌ها از کیفیت مناسبی برخوردار نیست."
+        ]
+      },
+      {
+        id: 10,
+        title: "تجربه بهتر مشتری پروژه",
+        en: "Enhanced Project Customer Experience",
+        recommendedServices: [15, 17, 23, 26],
+        questions: [
+          "پروژه‌ها معمولاً انتظارات مشتریان را برآورده نکرده یا فراتر از آن عمل نمی‌کنند.",
+          "سطح رضایت مشتریان از تحویل پروژه‌ها مطلوب نیست.",
+          "تحویل ضعیف پروژه‌ها موجب از دست رفتن اعتماد یا همکاری مشتریان شده است."
+        ]
+      },
+      {
+        id: 11,
+        title: "مدیریت بهینه‌تر منابع",
+        en: "Enhanced Resource Management",
+        recommendedServices: [6, 10, 14, 19],
+        questions: [
+          "منابع سازمان به‌صورت کارآمد بین پروژه‌ها تخصیص داده نمی‌شود.",
+          "محدودیت منابع، مکرراً ایجاد گلوگاه یا تاخیر در پروژه‌ها می‌شود.",
+          "توزیع حجم کار بین اعضای تیم‌های پروژه نامتعادل است."
+        ]
+      },
+      {
+        id: 12,
+        title: "همسویی بیشتر با اهداف راهبردی",
+        en: "Greater Alignment With Strategic Objectives",
+        recommendedServices: [1, 2, 4, 6, 7],
+        questions: [
+          "پروژه‌های سازمان به‌طور شفاف در راستای اهداف راهبردی تعریف نشده‌اند.",
+          "برخی پروژه‌های تکمیل‌شده، نقش یا منفعتی در تحقق اهداف استراتژیک نداشته‌اند.",
+          "اولویت‌بندی پروژه‌ها بر اساس همسویی آن‌ها با اهداف راهبردی انجام نمی‌شود."
+        ]
+      },
+      {
+        id: 13,
+        title: "یکپارچگی بیشتر بین واحدهای سازمانی",
+        en: "Greater Integration Among Organizational Areas",
+        recommendedServices: [3, 11, 26],
+        questions: [
+          "همکاری بین واحدهای مختلف سازمان در اجرای پروژه‌ها ضعیف است.",
+          "سازمان در بهره‌گیری از توانمندی‌های متنوع واحدهای مختلف در پروژه‌ها با چالش مواجه است.",
+          "نبود هماهنگی بین واحدهای سازمانی باعث بروز مشکلاتی در پروژه‌ها می‌شود."
+        ]
+      },
+      {
+        id: 14,
+        title: "بازگشت سرمایه (ROI) بالاتر",
+        en: "Higher Return on Investment (ROI)",
+        recommendedServices: [2, 6, 19, 20],
+        questions: [
+          "بازگشت سرمایه سبد پروژه‌های سازمان رضایت‌بخش نیست.",
+          "اثبات ارزش و منافع پروژه‌ها به ذینفعان با چالش مواجه است.",
+          "منافع کسب‌وکاری پروژه‌ها به‌طور موثر اندازه‌گیری و پایش نمی‌شود."
+        ]
+      },
+      {
+        id: 15,
+        title: "دسترسی بهتر به اطلاعات",
+        en: "Improved Availability of Information",
+        recommendedServices: [11, 16, 22],
+        questions: [
+          "اطلاعات پروژه‌ها به موقع در اختیار تصمیم‌گیران قرار نمی‌گیرد.",
+          "در شرایط بحرانی، داده‌ها و اطلاعات حیاتی پروژه در دسترس نیستند.",
+          "مدیران و ذینفعان به سرعت به اطلاعات مورد نیاز پروژه‌ها دسترسی ندارند."
+        ]
+      },
+      {
+        id: 16,
+        title: "همکاری و ارتباطات موثرتر",
+        en: "Improved Collaboration and Communication",
+        recommendedServices: [3, 11, 26],
+        questions: [
+          "ارتباطات درون تیم‌های پروژه اثربخش نیست.",
+          "سوءبرداشت و ناهماهنگی بین اعضای تیم و ذینفعان زیاد رخ می‌دهد.",
+          "ابزارها و فرایندهای ارتباطی پروژه‌ها رضایت‌بخش نیست."
+        ]
+      },
+      {
+        id: 17,
+        title: "تعهد سازمانی قوی‌تر به نتایج",
+        en: "Improved Organizational Commitment to Results",
+        recommendedServices: [1, 2, 3, 6, 19],
+        questions: [
+          "مسئولیت‌پذیری در قبال نتایج پروژه‌ها در سازمان پایین است.",
+          "حفظ تمرکز سازمان بر دستیابی به نتایج پروژه‌ها با چالش همراه است.",
+          "فرهنگ عملکرد و نتیجه‌محوری در تیم‌های پروژه‌ها ضعیف است."
+        ]
+      },
+      {
+        id: 18,
+        title: "مدیریت بهتر بودجه پروژه‌ها",
+        en: "Improved Project Budget Management",
+        recommendedServices: [14, 16, 17, 19, 21, 22, 25],
+        questions: [
+          "پروژه‌ها به‌طور مکرر با اضافه‌هزینه مواجه می‌شوند.",
+          "نظارت مالی بر پروژه‌ها رضایت‌بخش نیست.",
+          "شفافیت کافی در خصوص هزینه‌ها و مصرف بودجه پروژه‌ها وجود ندارد."
+        ]
+      },
+      {
+        id: 19,
+        title: "بهبود روابط با مشتریان پروژه",
+        en: "Improved Project Customer Relationships",
+        recommendedServices: [15, 17, 19, 26],
+        questions: [
+          "روابط سازمان با مشتریان پروژه مثبت و سازنده نیست.",
+          "بازخورد مشتریان در خصوص برآورده نشدن انتظارات دریافت می‌شود.",
+          "ارتباط با مشتری در طول چرخه عمر پروژه موثر اعلام نمی‌شود."
+        ]
+      },
+      {
+        id: 20,
+        title: "مدیریت عملکرد موثرتر",
+        en: "Improved Performance Management",
+        recommendedServices: [13, 16, 17, 19, 20, 21, 22],
+        questions: [
+          "عملکرد برنامه‌ها و پروژه‌ها به‌طور منظم پایش و کنترل نمی‌شود.",
+          "بسیاری از مشکلات پروژه دیر شناسایی می‌شوند.",
+          "سازمان در تضمین موفقیت پروژه‌ها عملکرد مناسبی ندارد."
+        ]
+      },
+      {
+        id: 21,
+        title: "نرخ موفقیت بالاتر پروژه‌ها",
+        en: "Improved Success Rates",
+        recommendedServices: [5, 8, 9, 14, 17, 20, 21, 24, 25],
+        questions: [
+          "پروژه‌ها در زمان، بودجه و اهداف تعیین‌شده محقق نمی‌شوند.",
+          "درصد بالایی از پروژه‌ها در سازمان موفق تلقی نمی‌شوند.",
+          "تاخیر یا شکست پروژه‌ها تاثیر قابل‌توجهی بر عملکرد سازمان دارد."
+        ]
+      },
+      {
+        id: 22,
+        title: "قابلیت اتکای بیشتر اطلاعات پروژه",
+        en: "Improved Reliability of Information Provided",
+        recommendedServices: [11, 16, 23],
+        questions: [
+          "اطلاعات پروژه‌ها دقیق و به‌روز نیست.",
+          "داده‌های نامعتبر، تصمیم‌گیری‌های پروژه‌ها را با مشکل مواجه می‌کند.",
+          "کیفیت اطلاعات پروژه‌ها تاثیر مستقیمی بر تصمیم‌گیری‌های نادرست سازمان دارد."
+        ]
+      },
+      {
+        id: 23,
+        title: "مشارکت موثرتر ذینفعان",
+        en: "Improved Stakeholder Engagement",
+        recommendedServices: [5, 15, 26],
+        questions: [
+          "ذینفعان در طول چرخه عمر پروژه به درستی درگیر و مشارکت داده نمی‌شوند.",
+          "جلب حمایت و همراهی همتایان یا ذینفعان با چالش همراه است.",
+          "رویه‌های فعلی مدیریت و مشارکت ذینفعان اثربخش نیست."
+        ]
+      },
+      {
+        id: 24,
+        title: "یادگیری سازمانی بیشتر",
+        en: "Increased Organizational Learning",
+        recommendedServices: [8, 12, 13, 18],
+        questions: [
+          "درس‌آموخته‌های پروژه‌ها به‌صورت مدون ثبت و به کار گرفته نمی‌شود.",
+          "اشتباهات گذشته در پروژه‌های مختلف تکرار می‌شود.",
+          "فرهنگ بهبود مستمر در مدیریت پروژه در سازمان نهادینه نشده است."
+        ]
+      },
+      {
+        id: 25,
+        title: "بهره‌وری بالاتر در پروژه‌ها",
+        en: "Increased Productivity on Projects",
+        recommendedServices: [9, 10, 11, 22, 25],
+        questions: [
+          "بهره‌وری تیم‌های پروژه در سطح مطلوبی قرار ندارد.",
+          "عوامل متعددی باعث کاهش عملکرد تیم‌های پروژه می‌شود.",
+          "ابزارها و رویه‌های مناسب برای افزایش بهره‌وری پروژه‌ها به کار گرفته نمی‌شود."
+        ]
+      },
+      {
+        id: 26,
+        title: "شفافیت بیشتر در پیشرفت پروژه‌ها",
+        en: "Increased Visibility of Project Progress",
+        recommendedServices: [11, 16, 26],
+        questions: [
+          "گزارش‌های پیشرفت پروژه‌ها شفاف و منظم ارائه نمی‌شود.",
+          "نبود شفافیت در وضعیت پروژه‌ها موجب ناهماهنگی ذینفعان می‌شود.",
+          "سازوکار دقیقی برای گزارش‌دهی پیشرفت پروژه‌ها رضایت‌بخش نیست."
+        ]
+      },
+      {
+        id: 27,
+        title: "پیش‌بینی دقیق‌تر پروژه‌ها",
+        en: "More Accurate Project Forecasting",
+        recommendedServices: [9, 16, 22, 24, 25],
+        questions: [
+          "پیش‌بینی‌های پروژه با نتایج واقعی همخوانی ندارد.",
+          "پیش‌بینی‌های نادرست، بر زمان‌بندی و بودجه پروژه‌ها اثر منفی گذاشته است.",
+          "روش‌های پیش‌بینی پروژه‌ها در سازمان قابل اتکا نیست."
+        ]
+      },
+      {
+        id: 28,
+        title: "کاهش میزان ریسک‌ها",
+        en: "Reduction of Risk Exposure",
+        recommendedServices: [4, 13, 17, 24],
+        questions: [
+          "راهبرد مدیریت ریسک پروژه‌ها جامع و اثربخش نیست.",
+          "رخدادهای پیش‌بینی‌نشده، به‌طور جدی پروژه‌ها را تحت تاثیر قرار می‌دهند.",
+          "سازمان توانایی مناسبی در شناسایی، ارزیابی و کاهش ریسک‌های پروژه ندارد."
+        ]
+      },
+      {
+        id: 29,
+        title: "حاکمیت و تطابق قوی‌تر",
+        en: "Stronger Governance and Compliance",
+        recommendedServices: [4, 9, 13, 14],
+        questions: [
+          "الزامات قانونی و سیاست‌های سازمانی در پروژه‌ها به‌صورت مطلوب رعایت نمی‌شود.",
+          "پروژه‌ها با مشکلات یا جرایم مرتبط با عدم انطباق مواجه شده‌اند.",
+          "چارچوب‌های حاکمیتی فعلی سازمان قابل اتکا و موثر نیست."
+        ]
+      },
+      {
+        id: 30,
+        title: "کاهش طول چرخه عمر پروژه‌ها",
+        en: "Reduction of Project Life Cycle",
+        recommendedServices: [9, 10, 14, 17, 21, 22, 25],
+        questions: [
+          "مدت زمان اجرای پروژه‌ها در سطح قابل قبول قرار ندارد.",
+          "طولانی بودن چرخه عمر پروژه‌ها بر رقابت‌پذیری سازمان اثر منفی گذاشته است.",
+          "فرایندهای پروژه برای کاهش زمان عرضه به بازار به‌خوبی بهینه‌سازی نشده‌اند."
+        ]
+      }
+    ];
 
-            <!-- Admin Toolbar -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 no-print">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-user-shield"></i> پنل مدیریت اساتید
-                        </span>
-                        <h2 class="font-extrabold text-slate-800 text-lg">دیتابیس شرکت‌کنندگان و تقسیم‌بندی تیم‌ها</h2>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1">
-                        در این بخش فقط خلاصه اطلاعات، شماره تماس، ایمیل و نقش‌های قالب و پشتیبان نمایش داده می‌شود.
-                    </p>
-                </div>
+    /* -------------------------------------------------------------
+       2. DATA STRUCTURE: 26 PMO SERVICES & 5 MATURITY LEVELS (Appendix X3)
+       Strategic: 1..7 | Tactical: 8..12 | Operational: 13..26
+    ------------------------------------------------------------- */
+    const SERVICES = [
+      // STRATEGIC (1-7)
+      {
+        id: 1,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "مشاوره به مدیران ارشد",
+        titleEn: "Advice to Executive Level",
+        desc: "ارائه بینش‌ها، توصیه‌های راهبردی و سناریوهای تحلیلی مبتنی بر داده به مدیران ارشد جهت اتخاذ تصمیمات آگاهانه در زمینه سبد پروژه‌ها و همسویی با اهداف کلان سازمان.",
+        levels: [
+          "سطح ۱ (مشاوره واکنشی): ارائه مشاوره صرفاً در صورت درخواست صریح مدیران، مبتنی بر داده‌های محدود و بدون همسویی نظام‌مند با استراتژی سازمان.",
+          "سطح ۲ (مشورت ساختاریافته): برگزاری جلسات مشورتی منظم با مدیران ارشد با ساختار مشخص، اما فاقد پشتوانه تحلیلی عمیق و یکپارچه در سطح پورتفولیو.",
+          "سطح ۳ (راهنمایی داده‌محور): ارائه راهنمایی‌های پیش‌دستانه با استفاده از تحلیل داده‌های عملکردی پروژه‌ها و برنامه‌ها و ایجاد پیوند ملموس با اهداف سازمانی.",
+          "سطح ۴ (یکپارچگی استراتژیک): مشاوره به عنوان ورودی کلیدی تصمیم‌گیری‌های استراتژیک عمل کرده و جریان اطلاعات دوطرفه همراه با برنامه‌ریزی سناریوها برقرار است.",
+          "سطح ۵ (رهبری تحول‌آفرین): PMO شریک استراتژیک سازمان است، با هوش مصنوعی و مدل‌های پیش‌بینانه خط‌مشی‌های آینده سازمان را شکل داده و هدایت می‌کند."
+        ]
+      },
+      {
+        id: 2,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "مدیریت تحقق منافع",
+        titleEn: "Benefits Realization Management",
+        desc: "شناسایی، برنامه‌ریزی، سنجش و تضمین دستیابی به ارزش‌های تجاری و منافع تعریف شده در پروژه‌ها و برنامه‌ها در طول چرخه حیات و پس از تحویل نهایی.",
+        levels: [
+          "سطح ۱ (ردیابی موردی/تک‌موردی): شناسایی پراکنده منافع بالقوه بدون هیچ‌گونه فرایند ساختاریافته پیگیری و رها شدن منافع پس از اتمام پروژه‌ها.",
+          "سطح ۲ (پایش ساختاریافته): تدوین مستندات رسمی منافع در ابتدای پروژه و تعریف شاخص‌های پایه‌ای اما با تمرکز صرف بر ردیابی بدون مداخله فعال.",
+          "سطح ۳ (مدیریت فعال): مرور دوره‌ای منافع در طول چرخه حیات، تعیین شفاف مالک منافع (Benefit Owner) و اجرای اقدامات اصلاحی برای تضمین تحقق ارزش.",
+          "سطح ۴ (رویکرد یکپارچه): منافع به عامل اصلی انتخاب، اولویت‌بندی و ادامه پروژه‌ها تبدیل شده و گزارش‌های تحقق منافع مستقیماً در برنامه‌ریزی استراتژیک به کار می‌رود.",
+          "سطح ۵ (بهینه‌سازی مداوم پورتفولیو): استفاده از تحلیل‌های پیشرفته و الگوریتم‌های هوش مصنوعی جهت پیش‌بینی و بهینه‌سازی حداکثری بازگشت سرمایه و هم‌افزایی منافع."
+        ]
+      },
+      {
+        id: 3,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "توسعه فرهنگ پروژه",
+        titleEn: "Foster Project Culture",
+        desc: "نهادینه‌سازی مفاهیم، ارزش‌ها و اخلاق حرفه‌ای مدیریت پروژه در کل سازمان جهت افزایش مسئولیت‌پذیری، انطباق‌پذیری و همکاری متقابل.",
+        levels: [
+          "سطح ۱ (آگاهی اولیه): معرفی پراکنده مفاهیم ابتدایی مدیریت پروژه، درک بسیار محدود خارج از تیم‌های اختصاصی و عدم شناخت ارزش مدیریت پروژه در سازمان.",
+          "سطح ۲ (آموزش ساختاریافته): برگزاری دوره‌های آموزشی منظم اما با تمرکز انحصاری بر مهارت‌های فنی اولیه و بدون شکل‌گیری فرهنگ عمومی سازمانی.",
+          "سطح ۳ (شیوه‌های نهادینه‌شده): درک و کاربرد گسترده اصول و ابزارهای پروژه در واحدهای مختلف فراتر از تیم‌های فنی و ارتقای همکاری بین‌واحدی.",
+          "سطح ۴ (همسویی فرهنگی): شناخت مدیریت پروژه به عنوان یک شایستگی کلیدی سازمانی و گنجاندن آن در ارزیابی عملکرد کارکنان و مسیر شغلی منابع انسانی.",
+          "سطح ۵ (فرهنگ پروژه نوآورانه): فرهنگ پروژه پیشران نوآوری، یادگیری مداوم از شکست‌ها و موفقیت‌ها بوده و سازمان به الگوی مرجع در صنعت تبدیل می‌شود."
+        ]
+      },
+      {
+        id: 4,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "نظارت حاکمیتی",
+        titleEn: "Governance Oversight",
+        desc: "استقرار چارچوب‌های تصمیم‌گیری، ماتریس‌های تفویض اختیار، استانداردهای شفاف و نظارت بر تطابق تمامی اقدامات سازمانی با سیاست‌ها و قوانین.",
+        levels: [
+          "سطح ۱ (قواعد اولیه): قوانین ابتدایی وجود دارد اما به صورت منسجم رعایت نمی‌شود. حاکمیت واکنشی بوده و مستندسازی در حداقل قرار دارد.",
+          "سطح ۲ (چارچوب ساختاریافته): استقرار ساختارهای شفاف حاکمیتی، تعریف نقش‌ها و مسئولیت‌ها و برگزاری منظم جلسات نظارتی (هرچند با تمرکز بیشتر بر گزارش‌دهی).",
+          "سطح ۳ (اجرای فعال): انجام ممیزی‌های دوره‌ای انطباق، اعمال پیامدهای عدم تطابق توام با آموزش و تحلیل داده‌های حاکمیتی جهت بهبود فرایندها.",
+          "سطح ۴ (حاکمیت تطبیق‌پذیر): بازنگری و انعطاف‌پذیری هوشمند چارچوب‌ها متناسب با ابعاد و ماهیت پروژه‌های مختلف به عنوان تسهیل‌کننده و ارزش‌آفرین.",
+          "سطح ۵ (حاکمیت ارزش‌محور): حاکمیت به عنوان مزیت رقابتی و محرک چابکی، بدون تشریفات زائد و با حداکثر سرعت و شفافیت از طریق تحلیل‌های هوشمند."
+        ]
+      },
+      {
+        id: 5,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "مدیریت تغییرات سازمانی",
+        titleEn: "Organizational Change Management",
+        desc: "طراحی و هدایت مداخلات مدیریت جنبه‌های انسانی و فرایندی تحولات جهت پذیرش روان، کاهش مقاومت و پایداری نتایج پروژه‌ها در بدنه کسب‌وکار.",
+        levels: [
+          "سطح ۱ (رویکرد واکنشی): برخورد دیرهنگام با مقاومت‌ها و اثرات تغییر صرفاً در زمان بحران، بدون فرایند مشخص و مقاومت بالا در بدنه سازمان.",
+          "سطح ۲ (رویکرد برنامه‌ریزی‌شده): تدوین برنامه تغییرات برای پروژه‌ها، ارزیابی اولیه اثرات تغییر و تدوین برنامه‌های کلی ارتباطی و ذینفعان.",
+          "سطح ۳ (مدیریت یکپارچه): اجرای یکپارچه فرایندهای مدیریت تغییر در کلیه پروژه‌ها، ارزیابی آمادگی تغییر و ایجاد قابلیت درونی تغییر در مدیران سازمان.",
+          "سطح ۴ (توانمندسازی پیش‌دستانه): استفاده از مدل‌سازی پیشرفته برای پیش‌بینی مقاومت‌ها، تاب‌آوری سازمانی و عملکرد PMO به عنوان مرکز تعالی تغییر.",
+          "سطح ۵ (تثبیت در فرهنگ): انطباق‌پذیری کامل به عنوان فرهنگ سازمانی، بهره‌گیری از هوش مصنوعی برای بهینه‌سازی استراتژی‌های پذیرش در تحولات سریع."
+        ]
+      },
+      {
+        id: 6,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "مدیریت سبد پروژه‌ها (پورتفولیو)",
+        titleEn: "Portfolio Management",
+        desc: "غربالگری، انتخاب، اولویت‌بندی، ایجاد توازن و نظارت کلان بر سرمایه‌گذاری‌ها و سبد طرح‌ها و پروژه‌ها در راستای حداکثرسازی ارزش راهبردی سازمان.",
+        levels: [
+          "سطح ۱ (فهرست‌برداری پایه): وجود فهرستی ساده از پروژه‌ها؛ اولویت‌بندی و انتخاب پروژه‌ها سلیقه‌ای و بدون انطباق استراتژیک یا بهینه‌سازی منابع.",
+          "سطح ۲ (انتخاب و اولویت‌بندی ساختاریافته): تدوین معیارهای رسمی غربالگری و پذیرش، ارزیابی طرح‌های توجیهی و پایش مقدماتی سبد پروژه‌ها.",
+          "سطح ۳ (مدیریت فعال پورتفولیو): بازنگری مستمر پورتفولیو، بازتوزیع مداوم منابع بر اساس کارایی و اختیار تصمیم‌گیری در مورد توقف یا تغییر پروژه‌ها.",
+          "سطح ۴ (بهینه‌سازی و همسویی استراتژیک): پورتفولیو ابزار اصلی تحقق استراتژی سازمان است و شبیه‌سازی سناریوها جهت بیشینه‌سازی ارزش صورت می‌پذیرد.",
+          "سطح ۵ (بهینه‌سازی پویا با AI): تنظیم بلادرنگ (Dynamic) ترکیب پروژه‌ها بر اساس نوسانات بازار و محیط با استفاده از مدل‌های یادگیری ماشین و پیش‌بینانه."
+        ]
+      },
+      {
+        id: 7,
+        cat: "strategic",
+        catName: "استراتژیک",
+        titleFa: "پشتیبانی از برنامه‌ریزی راهبردی",
+        titleEn: "Strategic Planning Support",
+        desc: "مشارکت فعال در تدوین و به‌روزرسانی استراتژی‌های سازمانی از طریق ارائه داده‌ها، ظرفیت‌های اجرایی و ترجمه اهداف کلان به برنامه‌های عملیاتی.",
+        levels: [
+          "سطح ۱ (ارائه ورودی اولیه): محدود به ارائه گزارش‌های ساده پیشرفت وضعیت پروژه‌ها بدون هیچ‌گونه تحلیل یا مشارکت در مباحث تدوین استراتژی.",
+          "سطح ۲ (مشارکت ساختاریافته): ارائه گزارش‌های مدون از تطابق پروژه‌ها با استراتژی و حضور در جلسات برنامه‌ریزی راهبردی عمدتاً در نقش پشتیبان.",
+          "سطح ۳ (مشارکت فعال): اثرگذاری ملموس بر شکل‌گیری برنامه‌های راهبردی بر اساس بینش‌های حاصل از واقعیت‌های اجرایی پورتفولیو.",
+          "سطح ۴ (یکپارچگی استراتژیک): ترجمه دقیق استراتژی به برنامه‌های اجرایی و سناریوسازی تاثیر تصمیمات پورتفولیو بر نتایج کلان سازمان.",
+          "سطح ۵ (هم‌آفرینی استراتژی): PMO شریک کلیدی رهبری سازمان در تدوین خط‌مشی‌ها، تحلیل آینده و ایجاد مزیت رقابتی پایدار است."
+        ]
+      },
 
-                <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
-                    <button onclick="autoDivideIntoTwoGroups()" class="px-4 py-2.5 rounded-xl pmp-gradient text-white text-xs font-bold shadow-md hover:opacity-95 transition flex items-center gap-2">
-                        <i class="fa-solid fa-scale-balanced text-pmp-gold"></i>
-                        <span>چینش خودکار ۲ تیم (فقط اعضای تیک‌خورده)</span>
-                    </button>
-                    <button onclick="lockAdminPanel()" class="px-3 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-lock"></i>
-                        <span>قفل ادمین</span>
-                    </button>
-                </div>
-            </div>
+      // TACTICAL (8-12)
+      {
+        id: 8,
+        cat: "tactical",
+        catName: "تاکتیکی",
+        titleFa: "مدیریت دانش",
+        titleEn: "Knowledge Management",
+        desc: "فرآیند سیستماتیک ثبت، دسته‌بندی، اعتبارسنجی و بازنشر درس‌آموخته‌ها و تجارب موفق و ناموفق پروژه‌ها برای جلوگیری از تکرار اشتباهات.",
+        levels: [
+          "سطح ۱ (مستندسازی موردی): ثبت پراکنده درس‌آموخته‌ها در انتهای پروژه که به ندرت به اشتراک گذاشته می‌شود؛ اتکای صرف به دانش ذهنی افراد.",
+          "سطح ۲ (مخزن پایه دانش): ایجاد مخزن مرکزی فایل‌ها و قالب استاندار برای ثبت تجارب، هرچند دسترسی و به‌کارگیری مجدد آن سیستماتیک نیست.",
+          "سطح ۳ (تسهیم فعالانه دانش): جلسات منظم انتقال تجربه، مطالعات موردی و پایگاه داده تعاملی که به طور ملموس در پروژه‌های جاری به کار گرفته می‌شود.",
+          "سطح ۴ (دانش یکپارچه): ادغام مدیریت دانش در تمام مراحل چرخه عمر پروژه، سیستم‌های هوشمند پیشنهاددهنده و ایجاد انجمن‌های خبرگی (CoP).",
+          "سطح ۵ (سازمان دانش‌بنیان): دانش پروژه‌ای دارایی اصلی و پیشران نوآوری سازمان، تحلیل پیشرفته ترندها و یادگیری سازمانی خودکار."
+        ]
+      },
+      {
+        id: 9,
+        cat: "tactical",
+        catName: "تاکتیکی",
+        titleFa: "مدیریت متدولوژی‌ها و چارچوب‌ها",
+        titleEn: "Methodologies and Frameworks",
+        desc: "توسعه، بومی‌سازی، استقرار و تطبیق استانداردها، متدولوژی‌های سنتی، چابک (Agile) یا هیبریدی و فرم‌ها و الگوهای مدیریت پروژه.",
+        levels: [
+          "سطح ۱ (دستورالعمل‌های اولیه): وجود راهنماهای بسیار ابتدایی، غیرمنسجم و اختیاری بدون آموزش یا رویه‌های کنترل انطباق.",
+          "سطح ۲ (متدولوژی استاندارد): تدوین متدولوژی مدون برای سطح پروژه، فرم‌ها و الگوهای مشترک و ارائه آموزش‌های پایه به مدیران پروژه.",
+          "سطح ۳ (چارچوب جامع): متدولوژی یکپارچه شامل پروژه، طرح و پورتفولیو، الگوهای کامل، آموزش مداوم و ممیزی‌های رسمی رعایت چارچوب.",
+          "سطح ۴ (متدولوژی تطبیق‌پذیر/هیبرید): قابلیت سفارشی‌سازی هوشمندانه متدولوژی بر حسب پیچیدگی پروژه‌ها (چابک، آبشاری یا ترکیبی) و بازنگری مداوم.",
+          "سطح ۵ (چارچوب‌های پیشرو و هوشمند): پیاده‌سازی متدولوژی‌های نسل نو منطبق بر هوش مصنوعی، اتوماسیون فرایندها و نوآوری در صنعت."
+        ]
+      },
+      {
+        id: 10,
+        cat: "tactical",
+        catName: "تاکتیکی",
+        titleFa: "مدیریت منابع",
+        titleEn: "Resource Management",
+        desc: "برنامه‌ریزی ظرفیت، پیش‌بینی تقاضا، تخصیص متوازن نیروی انسانی متخصص و تجهیزات و حل تعارضات منابع میان پروژه‌های مختلف.",
+        levels: [
+          "سطح ۱ (تخصیص اولیه): پشتیبانی اولیه و دید ضعیف از در دسترس بودن منابع، برنامه‌ریزی کوتاه‌مدت، تعارضات مکرر و عدم تناسب مهارت‌ها.",
+          "سطح ۲ (ردیابی متمرکز): سیستم ردیابی متمرکز زمان و تخصیص منابع، دید بهتر از بار کاری و شناسایی زودهنگام تداخلات منابع.",
+          "سطح ۳ (مدیریت پیش‌دستانه): برنامه‌ریزی جامع ظرفیت (Capacity Planning)، پیش‌بینی نیازها، تخصیص مبتنی بر ماتریس مهارت و توازن پورتفولیو.",
+          "سطح ۴ (همسویی استراتژیک): تحلیل‌های پیش‌بینانه جهت جلوگیری از گلوگاه‌ها، برنامه‌ریزی ارتقای منابع کلیدی همراستا با توسعه استراتژیک.",
+          "سطح ۵ (بهینه‌سازی پویا): تخصیص و بازتخصیص کاملاً خودکار و بلادرنگ منابع بر مبنای الگوریتم‌های هوش مصنوعی متناسب با نیاز متغیر سازمان."
+        ]
+      },
+      {
+        id: 11,
+        cat: "tactical",
+        catName: "تاکتیکی",
+        titleFa: "مدیریت سیستم‌ها و ابزارها",
+        titleEn: "Systems and Tools Management",
+        desc: "انتخاب، پیاده‌سازی، یکپارچه‌سازی و پشتیبانی از سامانه‌های نرم‌افزاری PMIS، نرم‌افزارهای پایش کار، ابزارهای مدیریت اسناد و بسترهای مشارکتی.",
+        levels: [
+          "سطح ۱ (ابزارهای جزیره‌ای): استفاده از ابزارهای پراکنده و مجزا (نظیر اکسل‌های متعدد)، بدون یکپارچگی، پشتیبانی ضعیف و خطاهای فراوان داده‌ای.",
+          "سطح ۲ (ابزارهای استاندارد): معرفی یک سامانه استاندارد نرم‌افزاری، آموزش مقدماتی کاربران و نگهداری منظم پایگاه داده پروژه‌ها.",
+          "سطح ۳ (سامانه جامع یکپارچه): نرم‌افزار جامع PMIS متصل به سامانه‌های مالی و اداری سازمان، جریان روان داده و استفاده بالای کاربران.",
+          "سطح ۴ (فناوری استراتژیک): سیستم‌های مجهز به داشبوردهای BI، تحلیل داده‌های پیش‌بینانه و یکپارچگی عمیق در تمام لایه‌های سازمان.",
+          "سطح ۵ (اکوسیستم ابزاری هوشمند): پلتفرم‌های مجهز به هوش مصنوعی و یادگیری ماشین با قابلیت پردازش خودکار و تحلیل بلادرنگ ریسک و عملکرد."
+        ]
+      },
+      {
+        id: 12,
+        cat: "tactical",
+        catName: "تاکتیکی",
+        titleFa: "آموزش و توانمندسازی",
+        titleEn: "Training and Development",
+        desc: "ارزیابی شایستگی‌ها، طراحی و اجرای تقویم‌های آموزشی تخصصی، توسعه مهارت‌های نرم و رهبری و پشتیبانی از مدارک حرفه‌ای کارکنان پروژه.",
+        levels: [
+          "سطح ۱ (آموزش‌های پایه‌ای و موردی): دوره‌های عمومی و پراکنده بدون تناسب‌سنجی با نیازهای واقعی پروژه و بدون اتصال به مسیر شغلی.",
+          "سطح ۲ (برنامه آموزش ساختاریافته): تقویم آموزشی منظم برای سرفصل‌های اساسی مدیریت پروژه و ردیابی اثربخشی دوره‌ها.",
+          "سطح ۳ (توسعه چندلایه شایستگی): ارزیابی دقیق شکاف مهارت‌ها، دوره‌های تخصصی، کارگاه‌های عملی و پیوند شفاف آموزش با ارتقای شغلی.",
+          "سطح ۴ (قابلیت‌سازی استراتژیک): تحلیل نیازهای آتی مهارت‌های سازمان، آموزش‌های رهبری پروژه و نقش فعال در نوآوری سازمانی.",
+          "سطح ۵ (اکوسیستم یادگیری تحول‌آفرین): مسیرهای یادگیری شخصی‌سازی شده با ابزارهای نوین، تحلیل هوشمند شایستگی‌ها و توسعه نسل آتی رهبران."
+        ]
+      },
 
-            <!-- Database / Lead Table & Filter Box -->
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
-                <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="font-extrabold text-slate-800 text-base">دیتابیس جامع شرکت‌کنندگان (بدون تکرار)</h3>
-                        <p class="text-xs text-slate-500">لیست یکتا بر اساس ایمیل/شماره تماس</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <div class="relative">
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400">
-                                <i class="fa-solid fa-search text-xs"></i>
-                            </span>
-                            <input type="text" id="db-search-input" oninput="renderAdminDatabaseTable()" placeholder="جستجوی نام یا شماره..." 
-                                class="w-full sm:w-64 pr-9 pl-3 py-2 rounded-xl border border-slate-300 text-xs outline-none focus:border-pmp-royal">
-                        </div>
-                    </div>
-                </div>
+      // OPERATIONAL (13-26)
+      {
+        id: 13,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "ارزیابی و ممیزی پروژه‌ها",
+        titleEn: "Audit Assessments",
+        desc: "انجام ممیزی‌های دوره‌ای و ساختاریافته از پروژه‌ها برای بررسی میزان انطباق با چارچوب‌ها، شناسایی کاستی‌ها و فرصت‌های بهبود عملکردی.",
+        levels: [
+          "سطح ۱ (بررسی اولیه انطباق): ممیزی‌های غیرمنسجم و واکنشی صرفاً پس از رخداد فاجعه در پروژه و با معیارهای سلیقه‌ای.",
+          "سطح ۲ (ممیزی استاندارد): وجود چک‌لیست‌ها و متدولوژی مشخص، انجام دوره‌ای ممیزی‌ها و ثبت مکتوب گزارش یافته‌ها.",
+          "سطح ۳ (ارزیابی جامع عملکرد): تمرکز توامان بر انطباق فرایندی و اثربخشی نتایج پروژه، ابزارهای تخصصی و ردیابی اقدامات اصلاحی.",
+          "سطح ۴ (بهینه‌سازی پیشگیرانه): استفاده از تحلیل ممیزی‌ها برای پیش‌بینی مشکلات سایر پروژه‌ها و اصلاح سیستمی فرایندها.",
+          "سطح ۵ (نظارت مستمر هوشمند): سیستم‌های هوشمند پایش مستمر که ناهنجاری‌ها را به‌صورت خودکار در لحظه کشف و اعلام می‌کنند."
+        ]
+      },
+      {
+        id: 14,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت کنترل تغییرات",
+        titleEn: "Change Control Management",
+        desc: "فرایند رسمی دریافت، تحلیل اثرات (محدوده، زمان، هزینه و کیفیت)، تصویب در کمیته کنترل تغییرات (CCB) و اعمال نظام‌مند تغییرات در پروژه.",
+        levels: [
+          "سطح ۱ (مدیریت واکنشی تغییرات): تغییرات بدون فرایند رسمی اعمال می‌شوند، خزش محدوده (Scope Creep) فراوان است و مستندات وجود ندارد.",
+          "سطح ۲ (فرایند پایه کنترل تغییر): تعریف فرم‌های درخواست تغییر (CR)، تشکیل کمیته تغییرات (CCB) هرچند ارزیابی اثرات سطحی است.",
+          "سطح ۳ (سیستم یکپارچه تغییرات): تحلیل جامع اثرات تغییر بر زمان، بودجه و ریسک، جلسات موثر CCB و اطلاع‌رسانی دقیق به ذینفعان.",
+          "سطح ۴ (کنترل پیش‌دستانه تغییرات): تحلیل روند تغییرات جهت جلوگیری از تغییرات زائد و خودکارسازی گردش‌کار تصویب تغییرات.",
+          "سطح ۵ (مدیریت استراتژیک تغییر): ادغام کامل کنترل تغییرات با اهداف تجاری سازمان و تحلیل هوشمند سناریوهای تغییر بر اهداف پورتفولیو."
+        ]
+      },
+      {
+        id: 15,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت ارتباط با مشتری پروژه",
+        titleEn: "Customer Relationship Management",
+        desc: "مدیریت تعاملات و انتظارات مشتریان داخلی و خارجی پروژه‌ها، سنجش رضایت‌مندی مستمر و رسیدگی به نیازهای ارتباطی آنان.",
+        levels: [
+          "سطح ۱ (تعامل حداقلی): ارتباطات منفعلانه و در زمان شکایت مشتری، بدون سنجش سیستماتیک میزان رضایت.",
+          "سطح ۲ (مدیریت استاندارد مشتری): ثبت انتظارات مشتریان، ارسال گزارش‌های منظم و سنجش دوره‌ای رضایت مشتری.",
+          "سطح ۳ (تعامل یکپارچه مشتری): تحلیل عمیق نیازها، مدیریت پیش‌دستانه انتظارات مشتری و ادغام بازخوردها در فرایندهای پروژه.",
+          "سطح ۴ (شراکت استراتژیک): مشارکت مستقیم مشتری در هم‌آفرینی ارزش، سنجش‌های پیش‌بینانه و نقش کلیدی PMO در وفاداری مشتری.",
+          "سطح ۵ (همکاری تحول‌آفرین): استفاده از تحلیل‌های هوش مصنوعی برای درک تجربه مشتری در هر لحظه و سفارشی‌سازی خدمات تحویلی."
+        ]
+      },
+      {
+        id: 16,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "تحلیل داده‌ها و گزارش‌دهی",
+        titleEn: "Data Analytics and Reporting",
+        desc: "گردآوری، صحت‌سنجی، تجمیع داده‌ها، تولید داشبوردهای هوش تجاری و گزارش‌های تحلیلی مدیریتی برای لایه‌های مختلف تصمیم‌گیری.",
+        levels: [
+          "سطح ۱ (گزارش‌دهی دستی و پایه): گزارش‌های ایستا، متناقض و با تاخیر فراوان، خطای بالای داده و بدون هرگونه بینش تحلیلی عمیق.",
+          "سطح ۲ (گزارش‌دهی استاندارد): قالب‌های یکدست، زمان‌بندی منظم ارسال گزارش‌ها و مصورسازی مقدماتی پیشرفت پروژه‌ها.",
+          "سطح ۳ (تحلیل داده‌های یکپارچه): داشبوردهای آنلاین و لایو، سیستم‌های هوش تجاری (BI) و یکپارچگی داده‌ای در سطح پورتفولیو.",
+          "سطح ۴ (تولید بینش استراتژیک): مدل‌سازی پیش‌بینانه عملکرد پروژه‌ها بر اهداف کسب‌وکار و ارائه گزارش‌های تجویزی به مدیران.",
+          "سطح ۵ (بهینه‌سازی هوشمند عملکرد): استفاده از یادگیری ماشین برای تولید خودکار بینش‌ها و توصیه‌های هوشمند بلادرنگ."
+        ]
+      },
+      {
+        id: 17,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت مسائل و چالش‌ها (Issues)",
+        titleEn: "Issue Management",
+        desc: "فرایند شناسایی، ثبت در لاگ مسائل، اولویت‌بندی، ارجاع، تعیین مسئول، پیگیری و حل سریع موانع و مسائل عملیاتی پروژه‌ها.",
+        levels: [
+          "سطح ۱ (برخورد واکنشی): حل مقطعی و سلیقه‌ای مسائل بدون ثبت در لاگ و بدون ریشه‌یابی علل رخداد مشکل.",
+          "سطح ۲ (ثبت پایه مسائل): وجود لاگ مسائل، تعیین اولویت و مسئول حل، هرچند تحلیل ریشه‌ای سیستماتیک انجام نمی‌شود.",
+          "سطح ۳ (مدیریت پیش‌دستانه چالش‌ها): فرایند جامع حل مسئله، فرایند شفاف تشدید (Escalation)، ریشه‌یابی علل و ارتباط با مدیریت ریسک.",
+          "سطح ۴ (پیشگیری استراتژیک از مسائل): بهره‌گیری از مدل‌های پیش‌بینانه برای شناسایی زودهنگام موانع پیش از وقوع در کل سازمان.",
+          "سطح ۵ (حل خودکار و هوشمند): سیستم‌های هوشمند برای دسته‌بندی، شبیه‌سازی راهکارها و تسریع حداکثری رفع مسائل."
+        ]
+      },
+      {
+        id: 18,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "منتورینگ و مربی‌گری (Coaching)",
+        titleEn: "Mentoring and Coaching",
+        desc: "ارائه خدمات هدایت فردی، مربی‌گری حرفه‌ای و منتورینگ به مدیران پروژه‌ها و اعضای تیم‌ها جهت غلبه بر چالش‌های کاری و رشد مهارتی.",
+        levels: [
+          "سطح ۱ (پشتیبانی غیررسمی): راهنمایی‌های مقطعی و کاملاً فردی بدون ساختار سازمانی مشخص و بدون پایش اثربخشی.",
+          "سطح ۲ (برنامه مربی‌گری ساختاریافته): اختصاص منتور به مدیران پروژه‌های جدید و تازه‌کار با جلسات زمان‌بندی شده مشخص.",
+          "سطح ۳ (چارچوب جامع مربی‌گری): تفکیک حرفه‌ای کوچینگ و منتورینگ، آموزش منتورها و پوشش تمامی سطوح مدیران پروژه‌ها.",
+          "سطح ۴ (توسعه استراتژیک استعدادها): اتصال منتورینگ به برنامه‌های جانشین‌پروری و مدیریت استعدادهای حیاتی سازمان.",
+          "سطح ۵ (توسعه رهبری تحول‌آفرین): بهره‌گیری از پلتفرم‌های مربی‌گری هوشمند و منتورینگ در سطح استانداردهای جهانی مدیریت پروژه."
+        ]
+      },
+      {
+        id: 19,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت عملکرد پروژه‌ها",
+        titleEn: "Performance Management",
+        desc: "تعریف KPIها، پایش مداوم زمان، هزینه و محدوده با متدولوژی‌های ارزش کسب‌شده (EVM) و سنجش بهره‌وری کلان پروژه‌ها و برنامه‌ها.",
+        levels: [
+          "سطح ۱ (پایش اولیه): رصد سطحی زمان و هزینه بدون تحلیل روندها و بدون ارتباط با اهداف کسب‌وکار.",
+          "سطح ۲ (ردیابی استاندارد): تعریف و گزارش‌دهی دوره‌ای KPIهای کلیدی پروژه و برگزاری جلسات ساختاریافته بررسی عملکرد.",
+          "سطح ۳ (مدیریت عملکرد یکپارچه): اجرای تکنیک‌های ارزش کسب‌شده (EVM)، هشدارهای زودهنگام انحرافات و مداخلات اصلاحی موثر.",
+          "سطح ۴ (بهینه‌سازی پیش‌بینانه عملکرد): تحلیل‌های پیش‌بینانه برای تخمین دقیق سرانجام پروژه‌ها و شبیه‌سازی تصمیمات اصلاحی.",
+          "سطح ۵ (ارتقای هوشمند عملکرد): بهینه‌سازی بلادرنگ عملکرد با هوش مصنوعی و مدل‌های یادگیری عمیق پیشرفته."
+        ]
+      },
+      {
+        id: 20,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت طرح‌ها (برنامه‌ها)",
+        titleEn: "Program Management",
+        desc: "تامین مدیران طرح توانمند برای هماهنگی و هم‌افزایی مجموعه‌ای از پروژه‌های مرتبط جهت دستیابی به منافعی که به صورت مجزا قابل تحقق نیستند.",
+        levels: [
+          "سطح ۱ (هماهنگی اولیه): تعیین رابط برای تبادل اطلاعات ساده میان چند پروژه بدون مدیریت یکپارچه منافع طرح.",
+          "سطح ۲ (مدیریت ساختاریافته طرح): تعریف شفاف اهداف برنامه، ردیابی ریسک‌ها و تداخلات پروژه‌های درون طرح.",
+          "سطح ۳ (حاکمیت یکپارچه طرح): انتصاب مدیران طرح مجرب، مدیریت پیشرفته وابستگی‌های بین‌پروژه‌ای و ره‌گیری منافع برنامه.",
+          "سطح ۴ (همسویی استراتژیک طرح‌ها): هدایت طرح‌ها به عنوان موتورهای اصلی خلق ارزش استراتژیک و یکپارچگی عمیق با پورتفولیو.",
+          "سطح ۵ (رهبری تحول‌آفرین طرح‌ها): راهبری پروژه‌ها و برنامه‌های مگاسایز (Megaprojects) و ایجاد قابلیت‌های تحول‌آفرین پایدار در سازمان."
+        ]
+      },
+      {
+        id: 21,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "تامین و راهبری مدیران پروژه",
+        titleEn: "Project Management",
+        desc: "اختصاص مدیران پروژه پاره‌وقت یا تمام‌وقت حرفه‌ای از بدنه PMO برای هدایت مستقیم، استاندارد و باکیفیت پروژه‌های کلیدی سازمان.",
+        levels: [
+          "سطح ۱ (اجرای اولیه): به‌کارگیری افراد با مهارت محدود به عنوان مدیر پروژه، فقدان استاندارد و مدیریت واکنشی محدودیت‌ها.",
+          "سطح ۲ (فرایندهای استاندارد): به‌کارگیری الگوها و ابزارهای منسجم توسط مدیران پروژه و ردیابی بهتر زمان، هزینه و محدوده.",
+          "سطح ۳ (مدیریت یکپارچه و توانمند): مدیران پروژه ماهر، برنامه‌ریزی یکپارچه، مدیریت تعاملی ذینفعان و کنترل دقیق عملکرد.",
+          "سطح ۴ (عملکرد بهینه): مدیران پروژه ارشد با مهارت‌های پیشرفته مذاکره، حل تعارض و هدایت پروژه‌ها منطبق بر استراتژی‌ها.",
+          "سطح ۵ (رهبری نوآورانه پروژه‌ها): رهبری پروژه‌های پیچیده با شیوه‌های نوآورانه، متدولوژی‌های ترکیبی و بالاترین نرخ موفقیت."
+        ]
+      },
+      {
+        id: 22,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "خدمات پشتیبانی اداری و دفتری پروژه",
+        titleEn: "Project Support Services",
+        desc: "ارائه خدمات دبیرخانه‌ای، آماده‌سازی گزارش‌ها، هماهنگی جلسات، بایگانی اسناد و پشتیبانی لجستیکی جهت آزاد کردن زمان مدیران پروژه.",
+        levels: [
+          "سطح ۱ (پشتیبانی پایه و موردی): خدمات دفتری صرفاً در صورت تقاضای اضطراری و بدون رویه و کیفیت استاندارد.",
+          "سطح ۲ (خدمات پشتیبانی استاندارد): ارائه خدمات معین برای امور اداری، قالب‌های اسناد و پاسخگویی به درخواست‌های جاری پروژه.",
+          "سطح ۳ (توانمندسازی جامع): ارائه خدمات جامع دفتری و لجستیکی باکیفیت و ابزارهای به‌روز، که بار اجرایی مدیران را کاهش می‌دهد.",
+          "سطح ۴ (بهینه‌سازی استراتژیک پشتیبانی): پیش‌بینی نیازهای اداری پروژه‌ها و تخصیص هوشمند منابع پشتیبانی متناسب با اولویت‌ها.",
+          "سطح ۵ (دستیار هوشمند پروژه): اتوماسیون کامل امور اداری و بهره‌گیری از بات‌های نرم‌افزاری و هوش مصنوعی در تولید اسناد و گزارش‌ها."
+        ]
+      },
+      {
+        id: 23,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "تضمین کیفیت پروژه‌ها (QA)",
+        titleEn: "Quality Assurance",
+        desc: "تدوین استانداردها و شاخص‌های کیفی تحویل‌دادنی‌ها، اجرای بازرسی‌ها و کنترل‌های منظم جهت اطمینان از برآورده شدن انتظارات کیفی مشتریان.",
+        levels: [
+          "سطح ۱ (کنترل‌های اولیه کیفیت): کنترل‌های سطحی صرفاً در پایان کار با تمرکز بر کشف عیوب به جای پیشگیری از خطا.",
+          "سطح ۲ (فرایندهای استاندارد کیفیت): تدوین چک‌لیست‌ها و شاخص‌های کیفی در نقاط عطف اصلی پروژه‌ها و مستندسازی عیوب.",
+          "سطح ۳ (مدیریت یکپارچه کیفیت): رویکرد فعال پیشگیری از خطا، ممیزی‌های کیفی مستمر و یکپارچگی با فرایندهای اجرایی.",
+          "سطح ۴ (بهینه‌سازی پیش‌بینانه کیفیت): استفاده از تحلیل‌های آماری برای پیش‌بینی عدم انطباق‌ها و استقرار استانداردهای کیفی مرجع.",
+          "سطح ۵ (ارتقای هوشمند کیفیت): بهره‌گیری از بینایی ماشین و هوش مصنوعی در ارزیابی کیفی خودکار خروجی‌ها و حذف کامل دوباره‌کاری‌ها."
+        ]
+      },
+      {
+        id: 24,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مدیریت ریسک‌های پروژه",
+        titleEn: "Risk Management",
+        desc: "فرایند پیوسته شناسایی، ارزیابی کیفی و کمی، برنامه‌ریزی پاسخ به ریسک‌ها و پایش ریسک‌ها و فرصت‌ها در طول اجرای پروژه‌ها.",
+        levels: [
+          "سطح ۱ (شناسایی اولیه): ثبت پراکنده و ذهنی چند ریسک اولیه بدون تحلیل احتمال و اثر و واکنش‌های صرفاً انفعالی.",
+          "سطح ۲ (فرایند استاندارد): تدوین ماتریس احتمال و اثر (سجل ریسک)، ارزیابی کیفی دوره‌ای و تدوین برنامه‌های کلی پاسخ به ریسک.",
+          "سطح ۳ (رویکرد یکپارچه): تحلیل‌های کمی (مانند شبیه‌سازی مونت‌کارلو)، پایش مستمر محرک‌های ریسک و تجمیع ریسک در سطح طرح.",
+          "سطح ۴ (مدیریت استراتژیک ریسک): اتصال اشتای ریسک (Risk Appetite) سازمان به تصمیمات پروژه و مدیریت فعالانه فرصت‌ها.",
+          "سطح ۵ (هوشمندی پیش‌بینانه ریسک): پیش‌بینی رخدادهای بحرانی با یادگیری ماشین و مدلسازی اثرات زنجیره‌ای ریسک‌های ناشناخته."
+        ]
+      },
+      {
+        id: 25,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "خدمات تخصصی و خبرگی",
+        titleEn: "Specialized Services",
+        desc: "ارائه مشاوره و خدمات بسیار تخصصی نظیر حقوقی و قراردادی، ادعا (Claim)، زمان‌بندی‌های فوق‌پیچیده، مالی و مهندسی ارزش.",
+        levels: [
+          "سطح ۱ (خبرگی موردی): استفاده بسیار محدود و اتفاقی از مشاوران بیرونی در صورت بروز بحران شدید در پروژه.",
+          "سطح ۲ (زمینه‌های تخصصی معین): تشکیل هسته‌های تخصصی درون‌سازمانی برای حوزه‌های خاص نظیر قراردادها یا تخمین بودجه.",
+          "سطح ۳ (پشتیبانی تخصصی یکپارچه): شبکه گسترده خبرگان درون و برون‌سازمانی، ورود پیش‌دستانه کارشناسان ارشد به پروژه‌ها.",
+          "سطح ۴ (تقویت قابلیت‌های راهبردی): تبدیل PMO به مرکز تعالی در تخصص‌های منحصربه‌فرد که مزیت رقابتی سازمان را شکل می‌دهد.",
+          "سطح ۵ (رهبری نوآوری تخصصی): ارائه خدمات پیشرو در لبه فناوری و روش‌های تخصصی مدیریت پروژه با استانداردهای بین‌المللی."
+        ]
+      },
+      {
+        id: 26,
+        cat: "operational",
+        catName: "عملیاتی",
+        titleFa: "مشارکت و درگیرسازی ذینفعان",
+        titleEn: "Stakeholder Engagement",
+        desc: "شناسایی ماتریس ذینفعان، تحلیل علایق و میزان نفوذ، تدوین استراتژی‌های تعامل سازنده و همسوسازی منافع گروه‌های ذینفع در پروژه.",
+        levels: [
+          "سطح ۱ (شناسایی اولیه): فهرست ساده‌ای از ذینفعان، بدون تحلیل میزان قدرت یا منافع آنان و ارتباطات کاملاً منفعلانه.",
+          "سطح ۲ (تحلیل ساختاریافته ذینفعان): ماتریس قدرت/علاقه، تدوین برنامه اولیه تعامل با ذینفعان و اطلاع‌رسانی منظم به آن‌ها.",
+          "سطح ۳ (مشارکت جامع ذینفعان): استراتژی‌های سفارشی برای هر گروه ذینفع، مدیریت تعارضات و رصد مستمر تغییر مواضع ذینفعان.",
+          "سطح ۴ (همسویی استراتژیک ذینفعان): تحلیل پیش‌بینانه رفتار ذینفعان و ایفای نقش کلیدی PMO در ایجاد وفاق و هم‌افزایی سازمانی.",
+          "سطح ۵ (همکاری تحول‌آفرین ذینفعان): مشارکت بلادرنگ و بسترهای تعاملی هوشمند که ذینفعان را به حامیان اصلی نوآوری بدل می‌سازد."
+        ]
+      }
+    ];
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right text-xs">
-                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                            <tr>
-                                <th class="p-3.5 text-center w-12">ردیف</th>
-                                <th class="p-3.5 text-center w-16">عضو کارگاه</th>
-                                <th class="p-3.5">نام و نام خانوادگی</th>
-                                <th class="p-3.5">شماره تماس</th>
-                                <th class="p-3.5">ایمیل</th>
-                                <th class="p-3.5">نقش غالب (اول)</th>
-                                <th class="p-3.5">نقش پشتیبان (دوم)</th>
-                                <th class="p-3.5 text-center">تخصیص تیم</th>
-                                <th class="p-3.5 text-center">عملیات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-database-tbody" class="divide-y divide-slate-200 text-slate-700 font-medium">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    /* -------------------------------------------------------------
+       3. STATE MANAGEMENT
+    ------------------------------------------------------------- */
+    // Questions ratings (1 to 90), default: all 1 or loaded from localStorage
+    let userRatings = {};
+    for (let i = 1; i <= 90; i++) {
+      userRatings[i] = 1; // 1 to 5
+    }
 
-            <!-- Two Groups Board -->
-            <div class="bg-white rounded-2xl shadow-lg border-2 border-pmp-navy/15 overflow-hidden">
-                <div class="pmp-gradient text-white px-6 py-5 flex items-center justify-between">
-                    <div class="flex items-center gap-3.5">
-                        <div class="w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-pmp-gold text-2xl shrink-0">
-                            <i class="fa-solid fa-people-group"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-lg sm:text-xl">تیم‌بندی نهایی کارگاه (فقط اعضایی که تیک دارند)</h3>
-                            <p class="text-xs text-sky-200 mt-0.5">توازن میان ابعاد عمل‌گرا، ارتباط‌گرا و تفکرمحور در دو تیم الف و ب</p>
-                        </div>
-                    </div>
-                </div>
+    // Maturity levels (Services 1 to 26): current (1-5), target (1-5)
+    let serviceMaturity = {};
+    SERVICES.forEach(s => {
+      serviceMaturity[s.id] = { current: 1, target: 3 };
+    });
 
-                <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="rounded-2xl border-2 border-sky-200 bg-sky-50/40 flex flex-col overflow-hidden">
-                        <div class="bg-sky-900 text-white px-5 py-3.5 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-7 h-7 rounded-lg bg-sky-400 text-slate-950 font-black flex items-center justify-center text-sm">A</span>
-                                <h4 class="font-extrabold text-base">گروه اول (تیم پروژه الف)</h4>
-                            </div>
-                            <span id="group-1-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
-                        </div>
-                        <div class="p-4 bg-white border-b border-sky-100" id="group-1-balance-box"></div>
-                        <div id="group-1-members" class="p-4 space-y-2.5 flex-1"></div>
-                    </div>
+    // Chart instances
+    let outcomesTopChartInstance = null;
+    let servicesNeedChartInstance = null;
+    let maturityDomainChartInstance = null;
+    let allServicesMaturityChartInstance = null;
 
-                    <div class="rounded-2xl border-2 border-amber-200 bg-amber-50/40 flex flex-col overflow-hidden">
-                        <div class="bg-amber-900 text-white px-5 py-3.5 flex items-center justify-between">
-                            <div class="flex items-center gap-2.5">
-                                <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm">B</span>
-                                <h4 class="font-extrabold text-base">گروه دوم (تیم پروژه ب)</h4>
-                            </div>
-                            <span id="group-2-count" class="px-2.5 py-0.5 rounded-full bg-white/15 text-xs font-bold">0 عضو</span>
-                        </div>
-                        <div class="p-4 bg-white border-b border-amber-100" id="group-2-balance-box"></div>
-                        <div id="group-2-members" class="p-4 space-y-2.5 flex-1"></div>
-                    </div>
-                </div>
-            </div>
+    /* -------------------------------------------------------------
+       4. INITIALIZATION & RENDERING
+    ------------------------------------------------------------- */
+    document.addEventListener("DOMContentLoaded", function () {
+      loadStateFromStorage();
+      renderQuestionsPage();
+      setupTabs();
+      setupQuickButtons();
+      updateAllCalculations();
+    });
 
-        </section>
+    function showToast(text, icon = "✅") {
+      const toast = document.getElementById("toast");
+      document.getElementById("toast-icon").textContent = icon;
+      document.getElementById("toast-text").textContent = text;
+      toast.classList.remove("opacity-0", "translate-y-20");
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-20");
+      }, 3000);
+    }
 
-    </main>
+    function saveStateToStorage() {
+      try {
+        localStorage.setItem("pmo_userRatings", JSON.stringify(userRatings));
+        localStorage.setItem("pmo_serviceMaturity", JSON.stringify(serviceMaturity));
+      } catch (e) {
+        console.error("Storage save failed", e);
+      }
+    }
 
-    <!-- Branded Footer -->
-    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 mt-12 no-print">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+    function loadStateFromStorage() {
+      try {
+        const savedRatings = localStorage.getItem("pmo_userRatings");
+        if (savedRatings) {
+          const parsed = JSON.parse(savedRatings);
+          Object.assign(userRatings, parsed);
+        }
+        const savedMaturity = localStorage.getItem("pmo_serviceMaturity");
+        if (savedMaturity) {
+          const parsedMat = JSON.parse(savedMaturity);
+          Object.assign(serviceMaturity, parsedMat);
+        }
+      } catch (e) {
+        console.error("Storage load failed", e);
+      }
+    }
+
+    /* -------------------------------------------------------------
+       5. TAB NAVIGATION
+    ------------------------------------------------------------- */
+    function setupTabs() {
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const targetTab = btn.getAttribute("data-tab");
+          switchTab(targetTab);
+        });
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(content => {
+        content.classList.add("hidden");
+      });
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.remove("bg-indigo-600", "text-white", "shadow-md");
+        btn.classList.add("text-slate-300");
+      });
+
+      const activeContent = document.getElementById(tabId);
+      if (activeContent) activeContent.classList.remove("hidden");
+
+      const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+      if (activeBtn) {
+        activeBtn.classList.remove("text-slate-300");
+        activeBtn.classList.add("bg-indigo-600", "text-white", "shadow-md");
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Refresh charts when switching tabs
+      if (tabId === 'tab-2') renderOutcomesPage();
+      if (tabId === 'tab-3') renderServicesNeedPage();
+      if (tabId === 'tab-4') renderMaturityPage();
+    }
+
+    /* -------------------------------------------------------------
+       6. RENDER PAGE 1: 90 QUESTIONS
+    ------------------------------------------------------------- */
+    function renderQuestionsPage() {
+      const container = document.getElementById("questions-container");
+      container.innerHTML = "";
+
+      let qGlobalIndex = 1;
+
+      OUTCOMES.forEach((outcome) => {
+        const block = document.createElement("div");
+        block.className = "bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 transition hover:shadow-md";
+
+        // Outcome Header
+        let outcomeScoreSum = 0;
+        for (let i = 0; i < 3; i++) {
+          outcomeScoreSum += (userRatings[qGlobalIndex + i] || 1);
+        }
+
+        block.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between pb-4 mb-4 border-b border-slate-100 gap-2">
             <div class="flex items-center gap-3">
-                <span class="font-black text-white text-sm">PMP<span class="text-pmp-gold">iran</span></span>
-                <span>|</span>
-                <span>شرکت مهندسی مشاور پیشرو مدیریت پیران (تأسیس ۱۳۸۴)</span>
+              <span class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-black flex items-center justify-center text-sm shadow-sm">
+                ${outcome.id}
+              </span>
+              <div>
+                <h3 class="text-base font-bold text-slate-800">${outcome.title}</h3>
+                <span class="text-xs text-slate-400 font-mono">${outcome.en}</span>
+              </div>
             </div>
-            <div class="text-center sm:text-left">
-                طراحی‌شده ویژه کارگاه آنلاین مدیریت پروژه — اساتید: <strong>مصطفی بختیاری</strong> و <strong>مهدی معین</strong>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500">مجموع وخامت سابجکت:</span>
+              <span id="outcome-sum-badge-${outcome.id}" class="text-xs font-bold px-2.5 py-1 rounded-lg ${getSeverityBadgeClass(outcomeScoreSum)} font-mono">
+                ${outcomeScoreSum} / 15
+              </span>
             </div>
-        </div>
-    </footer>
+          </div>
+          <div class="space-y-4" id="questions-group-${outcome.id}"></div>
+        `;
 
-    <!-- ========================================== -->
-    <!-- APPLICATION SCRIPT & LOCALSTORAGE DB       -->
-    <!-- ========================================== -->
-    <script>
-        const BELBIN_ROLES = {
-            PL: { id: 'PL', name: 'ایده‌پرداز (نوآور)', enName: 'Plant', color: '#0284c7', bgLight: 'bg-sky-50', textCol: 'text-sky-700', icon: 'fa-lightbulb', desc: 'خلاق، مبتکر و ارائه‌دهنده راه‌حل‌های نوآورانه.' },
-            ME: { id: 'ME', name: 'ارزیاب (ناظر)', enName: 'Monitor Evaluator', color: '#4f46e5', bgLight: 'bg-indigo-50', textCol: 'text-indigo-700', icon: 'fa-magnifying-glass-chart', desc: 'تحلیل‌گر، منطقی و بی‌طرف.' },
-            SP: { id: 'SP', name: 'متخصص', enName: 'Specialist', color: '#7c3aed', bgLight: 'bg-violet-50', textCol: 'text-violet-700', icon: 'fa-microchip', desc: 'دارای دانش تخصصی عمیق.' },
-            SH: { id: 'SH', name: 'شکل‌دهنده', enName: 'Shaper', color: '#ea580c', bgLight: 'bg-orange-50', textCol: 'text-orange-700', icon: 'fa-bolt', desc: 'پرانرژی، چالش‌گر و نتیجه‌گرا.' },
-            IMP: { id: 'IMP', name: 'مجری (پیاده‌ساز)', enName: 'Implementer', color: '#d97706', bgLight: 'bg-amber-50', textCol: 'text-amber-700', icon: 'fa-gears', desc: 'منظم، ساختارمند و قابل‌اتکا.' },
-            CF: { id: 'CF', name: 'تمام‌کننده', enName: 'Completer Finisher', color: '#e11d48', bgLight: 'bg-rose-50', textCol: 'text-rose-700', icon: 'fa-clipboard-check', desc: 'دقیق، کمال‌گرا و پیگیر.' },
-            CO: { id: 'CO', name: 'هماهنگ‌کننده', enName: 'Co-ordinator', color: '#059669', bgLight: 'bg-emerald-50', textCol: 'text-emerald-700', icon: 'fa-sitemap', desc: 'بالغ، بااعتمادبه‌نفس و تسهیل‌گر.' },
-            TW: { id: 'TW', name: 'همیار تیمی', enName: 'Teamworker', color: '#0d9488', bgLight: 'bg-teal-50', textCol: 'text-teal-700', icon: 'fa-handshake-angle', desc: 'همدل، حامی و دیپلماتیک.' },
-            RI: { id: 'RI', name: 'کاوشگر منابع', enName: 'Resource Investigator', color: '#16a34a', bgLight: 'bg-green-50', textCol: 'text-green-700', icon: 'fa-network-wired', desc: 'برون‌گرا، مشتاق و شبکه‌ساز.' }
+        const questionsGroup = block.querySelector(`#questions-group-${outcome.id}`);
+
+        outcome.questions.forEach((qText, qSubIdx) => {
+          const currentQNum = qGlobalIndex;
+          const currentVal = userRatings[currentQNum] || 1;
+
+          const qRow = document.createElement("div");
+          qRow.className = "p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/70 flex flex-col md:flex-row md:items-center justify-between gap-3";
+
+          qRow.innerHTML = `
+            <div class="flex items-start gap-2.5 flex-1">
+              <span class="text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 shrink-0 font-mono">
+                سوال ${currentQNum}
+              </span>
+              <p class="text-sm text-slate-700 leading-relaxed font-medium">
+                ${qText}
+              </p>
+            </div>
+            <div class="flex items-center justify-end gap-1.5 shrink-0 self-end md:self-center">
+              ${[1, 2, 3, 4, 5].map(score => `
+                <button
+                  type="button"
+                  onclick="setRating(${currentQNum}, ${score}, ${outcome.id})"
+                  id="btn-q-${currentQNum}-${score}"
+                  class="rating-btn w-9 h-9 rounded-lg font-bold text-xs transition flex items-center justify-center border ${
+                    currentVal === score
+                      ? getRatingActiveBtnClass(score)
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  }"
+                  title="امتیاز ${score}"
+                >
+                  ${score}
+                </button>
+              `).join('')}
+            </div>
+          `;
+
+          questionsGroup.appendChild(qRow);
+          qGlobalIndex++;
+        });
+
+        container.appendChild(block);
+      });
+
+      updateProgressBar();
+    }
+
+    function setRating(qNum, score, outcomeId) {
+      userRatings[qNum] = score;
+
+      // Update button styling for this question
+      for (let s = 1; s <= 5; s++) {
+        const btn = document.getElementById(`btn-q-${qNum}-${s}`);
+        if (btn) {
+          if (s === score) {
+            btn.className = `rating-btn w-9 h-9 rounded-lg font-bold text-xs transition flex items-center justify-center border ${getRatingActiveBtnClass(score)}`;
+          } else {
+            btn.className = "rating-btn w-9 h-9 rounded-lg font-bold text-xs transition flex items-center justify-center border bg-white text-slate-600 border-slate-200 hover:border-slate-300";
+          }
+        }
+      }
+
+      // Update outcome sum badge
+      const outcome = OUTCOMES.find(o => o.id === outcomeId);
+      if (outcome) {
+        const startQ = (outcomeId - 1) * 3 + 1;
+        const outcomeSum = (userRatings[startQ] || 1) + (userRatings[startQ + 1] || 1) + (userRatings[startQ + 2] || 1);
+        const badge = document.getElementById(`outcome-sum-badge-${outcomeId}`);
+        if (badge) {
+          badge.textContent = `${outcomeSum} / 15`;
+          badge.className = `text-xs font-bold px-2.5 py-1 rounded-lg ${getSeverityBadgeClass(outcomeSum)} font-mono`;
+        }
+      }
+
+      saveStateToStorage();
+      updateProgressBar();
+    }
+
+    function updateProgressBar() {
+      let answeredCount = 0;
+      for (let i = 1; i <= 90; i++) {
+        if (userRatings[i] && userRatings[i] > 0) answeredCount++;
+      }
+      const pct = Math.round((answeredCount / 90) * 100);
+      document.getElementById("answered-count-badge").textContent = `${answeredCount} از ۹۰ (${pct}٪)`;
+      document.getElementById("progress-bar-fill").style.width = `${pct}%`;
+    }
+
+    function getRatingActiveBtnClass(score) {
+      switch (score) {
+        case 1: return "bg-emerald-600 text-white border-emerald-600 shadow";
+        case 2: return "bg-teal-500 text-white border-teal-500 shadow";
+        case 3: return "bg-amber-500 text-white border-amber-500 shadow";
+        case 4: return "bg-orange-500 text-white border-orange-500 shadow";
+        case 5: return "bg-rose-600 text-white border-rose-600 shadow shadow-rose-200";
+        default: return "bg-indigo-600 text-white border-indigo-600";
+      }
+    }
+
+    function getSeverityBadgeClass(scoreOutOf15) {
+      if (scoreOutOf15 >= 13) return "badge-critical";
+      if (scoreOutOf15 >= 10) return "badge-high";
+      if (scoreOutOf15 >= 7) return "badge-medium";
+      return "badge-low";
+    }
+
+    function getSeverityText(scoreOutOf15) {
+      if (scoreOutOf15 >= 13) return "بسیار وخیم (مداخله فوری)";
+      if (scoreOutOf15 >= 10) return "وخامت بالا (هشدار)";
+      if (scoreOutOf15 >= 7) return "چالش متوسط";
+      return "مطلوب (کم‌ریسک)";
+    }
+
+    /* -------------------------------------------------------------
+       7. CALCULATIONS & PAGE 2 (30 OUTCOMES RANKING)
+    ------------------------------------------------------------- */
+    function calculateOutcomesData() {
+      return OUTCOMES.map(outcome => {
+        const startQ = (outcome.id - 1) * 3 + 1;
+        const q1 = userRatings[startQ] || 1;
+        const q2 = userRatings[startQ + 1] || 1;
+        const q3 = userRatings[startQ + 2] || 1;
+        const totalScore = q1 + q2 + q3; // min 3, max 15
+        const pct = Math.round(((totalScore - 3) / 12) * 100); // 0 to 100% normalized severity
+
+        return {
+          id: outcome.id,
+          title: outcome.title,
+          en: outcome.en,
+          recommendedServices: outcome.recommendedServices,
+          qScores: [q1, q2, q3],
+          totalScore: totalScore,
+          pct: pct
         };
+      }).sort((a, b) => b.totalScore - a.totalScore); // Highest score first
+    }
 
-        const ROLE_ORDER = ['SH', 'IMP', 'CF', 'CO', 'TW', 'RI', 'PL', 'ME', 'SP'];
+    function renderOutcomesPage() {
+      const outcomesData = calculateOutcomesData();
+      const tbody = document.getElementById("outcomes-table-body");
+      tbody.innerHTML = "";
 
-        const BELBIN_SECTIONS = [
-            { id: 1, title: 'بخش اول: مشارکت و ارزش‌آفرینی من', prompt: 'فکر می‌کنم مشارکت اصلی من در یک تیم پروژه این است که:', items: [
-                { role: 'RI', text: 'به‌سرعت فرصت‌های جدید را شناسایی کرده و بهره‌برداری می‌کنم.' },
-                { role: 'TW', text: 'می‌توانم با افراد بسیار متفاوت به خوبی کار و همدلی کنم.' },
-                { role: 'PL', text: 'تولید ایده و ارائه راه‌حل‌های نوآورانه یکی از استعدادهای من است.' },
-                { role: 'CO', text: 'توانایی خوبی دارم که پتانسیل افراد را تشخیص دهم.' },
-                { role: 'CF', text: 'به دلیل پیگیری مستمر، کارها را همیشه به موقع به سرانجام می‌رسانم.' },
-                { role: 'SH', text: 'حاضرم برای رسیدن به نتایج درست، تیم را به حرکت وادارم.' },
-                { role: 'IMP', text: 'به‌سرعت متوجه می‌شوم چه راهکار عملی و ساختارمندی کارساز است.' },
-                { role: 'ME', text: 'بدون تعصب، می‌توانم دلایل منطقی برای گزینه‌ها ارائه دهم.' },
-                { role: 'SP', text: 'دانش تخصصی و مهارت‌های فنی کمیابی را به تیم پروژه اضافه می‌کنم.' }
-            ]},
-            { id: 2, title: 'بخش دوم: چالش‌ها و کاستی‌های احتمالی', prompt: 'اگر نقطه ضعفی داشته باشم، احتمالاً به این دلیل است که:', items: [
-                { role: 'IMP', text: 'اگر جلسات ساختارمند نباشند، احساس ناآرامی می‌کنم.' },
-                { role: 'CO', text: 'گاهی بیش‌ازحد به دیگران میدان می‌دهم.' },
-                { role: 'RI', text: 'وقتی ایده جدیدی مطرح می‌شود، بیش‌ازحد هیجان‌زده می‌شوم.' },
-                { role: 'ME', text: 'نگاه تحلیلی و عینی من باعث می‌شود به سادگی با دیگران هم‌صدا نشوم.' },
-                { role: 'SH', text: 'وقتی باید کاری فوراً پیش برود، گاهی قاطع و آمرانه برخورد می‌کنم.' },
-                { role: 'TW', text: 'قرار گرفتن در جایگاه رهبری مستقیم برایم دشوار است.' },
-                { role: 'PL', text: 'آن‌قدر غرق در ایده‌های خودم می‌شوم که از جریان تیم جا می‌مانم.' },
-                { role: 'CF', text: 'بیش‌ازحد نگران جزئیات ریز و احتمال بروز خطا هستم.' },
-                { role: 'SP', text: 'وقتی موضوع خارج از حوزه تخصصی‌ام باشد، تمایل کمی به مشارکت دارم.' }
-            ]},
-            { id: 3, title: 'بخش سوم: نحوه تعامل در اجرای پروژه', prompt: 'وقتی در یک پروژه با سایر اعضا درگیر کار می‌شوم:', items: [
-                { role: 'CO', text: 'می‌توانم بر افراد تأثیر بگذارم، بدون اینکه تحت فشارشان بگذارم.' },
-                { role: 'CF', text: 'هوشیاری و دقت دائمی من مانع از بروز اشتباهات می‌شود.' },
-                { role: 'SH', text: 'آماده‌ام به جلسه فشار بیاورم تا زمان تلف نشود.' },
-                { role: 'PL', text: 'می‌توان روی من حساب کرد تا دیدگاهی کاملاً بدیع اضافه کنم.' },
-                { role: 'TW', text: 'همواره آماده حمایت از پیشنهاد خوب دیگران هستم.' },
-                { role: 'RI', text: 'مشتاقانه به دنبال یافتن جدیدترین ایده‌ها بیرون از تیم هستم.' },
-                { role: 'ME', text: 'قدرت قضاوت منصفانه و تحلیل منطقی دارم.' },
-                { role: 'IMP', text: 'می‌توان به من تکیه کرد تا کارهای اجرایی سازمان‌دهی شوند.' },
-                { role: 'SP', text: 'در حوزه خود با تمام توان از استانداردهای فنی دفاع می‌کنم.' }
-            ]},
-            { id: 4, title: 'بخش چهارم: رویکرد و سبک رفتاری', prompt: 'رویکرد و ویژگی بارز من در کارهای گروهی این است که:', items: [
-                { role: 'TW', text: 'علاقه دارم فضای صمیمی و امن در تیم ایجاد کنم.' },
-                { role: 'SH', text: 'از به چالش کشیدن دیدگاه‌های دیگران ابایی ندارم.' },
-                { role: 'ME', text: 'استدلال محکمی برای رد پیشنهادهای غیرمنطقی دارم.' },
-                { role: 'IMP', text: 'برنامه‌ها را با نظم بالا به مرحله اجرا درمی‌آورم.' },
-                { role: 'PL', text: 'تمایل دارم از راه‌حل‌های تکراری عبور کنم.' },
-                { role: 'CF', text: 'به دنبال کمال و بی‌نقص بودن خروجی کار هستم.' },
-                { role: 'RI', text: 'دوست دارم از ارتباطات خارج از گروه استفاده کنم.' },
-                { role: 'CO', text: 'بدون تردید جمع‌بندی و تصمیم‌گیری می‌کنم.' },
-                { role: 'SP', text: 'تلاش می‌کنم مرجع فنی تیم باشم.' }
-            ]},
-            { id: 5, title: 'بخش پنجم: عوامل انگیزشی در پروژه', prompt: 'من در محیط پروژه بیشترین رضایت را زمانی کسب می‌کنم که:', items: [
-                { role: 'ME', text: 'از تجزیه‌وتحلیل موقعیت‌ها لذت می‌برم.' },
-                { role: 'IMP', text: 'راه‌حل‌های عملی برای مسائل اجرایی پیدا می‌کنم.' },
-                { role: 'TW', text: 'در کاهش تنش میان اعضا نقش مؤثری داشته باشم.' },
-                { role: 'SH', text: 'تأثیر مستقیمی بر سرعت پیشرفت پروژه بگذارم.' },
-                { role: 'RI', text: 'فرصت ملاقات با افراد جدید را داشته باشم.' },
-                { role: 'CO', text: 'توافق اعضا را بر سر اهداف جلب کنم.' },
-                { role: 'CF', text: 'تمرکزم معطوف به اتمام کامل وظایف باشد.' },
-                { role: 'PL', text: 'فضایی برای تفکر خلاقانه‌ام وجود داشته باشد.' },
-                { role: 'SP', text: 'کاری به من سپرده شود که نیازمند دانش تخصصی‌ام باشد.' }
-            ]},
-            { id: 6, title: 'بخش ششم: واکنش در برابر چالش‌ها', prompt: 'اگر وظیفه دشواری با زمان محدود به من محول شود:', items: [
-                { role: 'PL', text: 'ابتدا در خلوت فکر می‌کنم تا راهی نو بیابم.' },
-                { role: 'TW', text: 'با افراد مثبت همراه می‌شوم تا جو تیم آرام بماند.' },
-                { role: 'CO', text: 'وظایف را هوشمندانه میان اعضا تقسیم می‌کنم.' },
-                { role: 'CF', text: 'اجازه نمی‌دهم از برنامه زمان‌بندی عقب بمانیم.' },
-                { role: 'ME', text: 'خونسردی خود را حفظ کرده و منطقی فکر می‌کنم.' },
-                { role: 'IMP', text: 'با ثبات قدم و طبق گام‌های مشخص کار را پیش می‌برم.' },
-                { role: 'SH', text: 'خودم هدایت خط مقدم کار را به دست می‌گیرم.' },
-                { role: 'RI', text: 'بحث را باز می‌کنم تا با هم‌فکری حرکت جدیدی بزنیم.' },
-                { role: 'SP', text: 'ابعاد فنی کار را سریعاً بررسی می‌کنم.' }
-            ]},
-            { id: 7, title: 'بخش هفتم: حل مسئله در جلسات', prompt: 'در ارتباط با مسائلی که در جلسات با آن‌ها روبه‌رو می‌شوم:', items: [
-                { role: 'SH', text: 'وقتی افراد مانع پیشرفت شوند، واکنش نشان می‌دهم.' },
-                { role: 'ME', text: 'شاید بگویند بیش‌ازحد تحلیل‌گر هستم.' },
-                { role: 'CF', text: 'اصرار به کیفیت کامل، گاهی سرعت حرکت را کم می‌کند.' },
-                { role: 'RI', text: 'خیلی زود از کارهای تکراری خسته می‌شوم.' },
-                { role: 'IMP', text: 'اگر اهداف شفاف نباشند، شروع کار برایم دشوار است.' },
-                { role: 'PL', text: 'گاهی در متقاعد کردن دیگران چالش دارم.' },
-                { role: 'CO', text: 'از دیگران می‌خواهم کارهایی را انجام دهند که مهارتش را دارند.' },
-                { role: 'TW', text: 'تمایلی به پافشاری به قیمت برهم خوردن آرامش تیم ندارم.' },
-                { role: 'SP', text: 'جزئیات تخصصی را آن‌قدر تشریح می‌کنم که شاید خسته‌کننده باشد.' }
-            ]}
-        ];
+      outcomesData.forEach((item, index) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
 
-        let currentAllocations = {};
-        let participants = [];
-        let isAdminUnlocked = false;
-        const ADMIN_PASSWORDS = ['pmpiran8', 'PMPIRAN8', '1234'];
+        tr.innerHTML = `
+          <td class="p-3 text-center font-bold text-slate-700">
+            ${index < 3 ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full ${index === 0 ? 'bg-amber-400 text-white' : index === 1 ? 'bg-slate-300 text-slate-700' : 'bg-amber-700 text-white'} text-xs font-black shadow-sm">${index + 1}</span>` : index + 1}
+          </td>
+          <td class="p-3 text-center text-xs text-slate-400 font-mono font-bold">#${item.id}</td>
+          <td class="p-3">
+            <div class="font-bold text-slate-800">${item.title}</div>
+            <div class="text-xs text-slate-400 font-mono">${item.en}</div>
+          </td>
+          <td class="p-3 text-center">
+            <span class="font-mono font-bold text-base text-slate-800">${item.totalScore}</span>
+            <span class="text-xs text-slate-400"> / 15</span>
+          </td>
+          <td class="p-3 text-center font-mono font-bold text-slate-700">
+            ${item.pct}٪
+          </td>
+          <td class="p-3 text-center">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${getSeverityBadgeClass(item.totalScore)}">
+              ${getSeverityText(item.totalScore)}
+            </span>
+          </td>
+          <td class="p-3">
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+              <div class="h-2.5 rounded-full transition-all duration-300 ${
+                item.totalScore >= 13 ? 'bg-rose-600' : item.totalScore >= 10 ? 'bg-orange-500' : item.totalScore >= 7 ? 'bg-amber-400' : 'bg-emerald-500'
+              }" style="width: ${(item.totalScore / 15) * 100}%"></div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
 
-        function initFormAllocations() {
-            currentAllocations = {};
-            BELBIN_SECTIONS.forEach(sec => {
-                currentAllocations[sec.id] = {};
-                sec.items.forEach(item => {
-                    currentAllocations[sec.id][item.role] = 0;
-                });
-            });
-        }
+      // Render Chart for Top 10
+      renderOutcomesChart(outcomesData.slice(0, 10));
+    }
 
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const colors = {
-                success: 'bg-emerald-600 text-white border-emerald-700',
-                error: 'bg-rose-600 text-white border-rose-700',
-                warning: 'bg-amber-500 text-slate-950 border-amber-600',
-                info: 'bg-pmp-navy text-white border-pmp-blue'
-            };
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-xl shadow-xl border ${colors[type]} text-xs sm:text-sm font-bold transition-all duration-300`;
-            toast.innerHTML = `<i class="fa-solid fa-circle-info text-lg shrink-0"></i><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
-        }
+    function renderOutcomesChart(topOutcomes) {
+      const ctx = document.getElementById("outcomesTopChart");
+      if (!ctx) return;
 
-        function requestAdminTab() {
-            if (isAdminUnlocked) {
-                switchTab(2);
-            } else {
-                const modal = document.getElementById('admin-login-modal');
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+      if (outcomesTopChartInstance) {
+        outcomesTopChartInstance.destroy();
+      }
+
+      outcomesTopChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: topOutcomes.map(o => o.title),
+          datasets: [{
+            label: 'مجموع وخامت (از ۱۵)',
+            data: topOutcomes.map(o => o.totalScore),
+            backgroundColor: topOutcomes.map(o => o.totalScore >= 13 ? 'rgba(225, 29, 72, 0.85)' : 'rgba(249, 115, 22, 0.85)'),
+            borderColor: topOutcomes.map(o => o.totalScore >= 13 ? '#e11d48' : '#f97316'),
+            borderWidth: 1.5,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              rtl: true,
+              callbacks: {
+                label: (ctx) => ` شدت چالش: ${ctx.raw} از ۱۵ (${Math.round((ctx.raw/15)*100)}٪)`
+              }
             }
-        }
-
-        function closeAdminModal() {
-            const modal = document.getElementById('admin-login-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.getElementById('admin-pass-input').value = '';
-        }
-
-        function verifyAdminPassword(e) {
-            e.preventDefault();
-            const pass = document.getElementById('admin-pass-input').value.trim();
-            if (ADMIN_PASSWORDS.includes(pass)) {
-                isAdminUnlocked = true;
-                document.getElementById('tab2-lock-icon').className = 'fa-solid fa-lock-open text-emerald-300 text-sm';
-                closeAdminModal();
-                switchTab(2);
-                showToast('پنل مدیریت اساتید باز شد.', 'success');
-            } else {
-                showToast('رمز عبور اشتباه است.', 'error');
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 15,
+              grid: { color: '#f1f5f9' },
+              ticks: { font: { family: 'Vazirmatn' } }
+            },
+            y: {
+              ticks: { font: { family: 'Vazirmatn', size: 11 } }
             }
+          }
         }
+      });
+    }
 
-        function lockAdminPanel() {
-            isAdminUnlocked = false;
-            document.getElementById('tab2-lock-icon').className = 'fa-solid fa-lock text-amber-300 text-sm';
-            switchTab(1);
-            showToast('پنل مدیریت قفل شد.', 'info');
-        }
+    /* -------------------------------------------------------------
+       8. CALCULATIONS & PAGE 3 (26 SERVICES NEED INDEX)
+       Mapping: Add Outcome Score to each recommended service
+       Scale 1 to 100
+    ------------------------------------------------------------- */
+    function calculateServicesNeed() {
+      // Calculate each outcome score (3 to 15)
+      const outcomeScoreMap = {};
+      OUTCOMES.forEach(o => {
+        const startQ = (o.id - 1) * 3 + 1;
+        const total = (userRatings[startQ] || 1) + (userRatings[startQ + 1] || 1) + (userRatings[startQ + 2] || 1);
+        outcomeScoreMap[o.id] = total;
+      });
 
-        function switchTab(tabNum) {
-            if (tabNum === 2 && !isAdminUnlocked) {
-                requestAdminTab();
-                return;
-            }
-            const tab1 = document.getElementById('tab-content-1');
-            const tab2 = document.getElementById('tab-content-2');
-            const btn1 = document.getElementById('tab-btn-1');
-            const btn2 = document.getElementById('tab-btn-2');
+      // Sum scores for each of the 26 services
+      const serviceAggregates = SERVICES.map(service => {
+        let rawSum = 0;
+        let referencesCount = 0;
+        let relatedOutcomes = [];
 
-            if (tabNum === 1) {
-                tab1.classList.remove('hidden');
-                tab2.classList.add('hidden');
-                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-pmp-gold text-slate-950 shadow-lg';
-                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-white/10 text-white hover:bg-white/20';
-            } else {
-                tab1.classList.add('hidden');
-                tab2.classList.remove('hidden');
-                btn2.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-pmp-gold text-slate-950 shadow-lg';
-                btn1.className = 'flex-1 sm:flex-initial px-5 py-3 rounded-xl font-bold text-sm bg-white/10 text-white hover:bg-white/20';
-                renderAdminDashboard();
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        OUTCOMES.forEach(o => {
+          if (o.recommendedServices.includes(service.id)) {
+            rawSum += outcomeScoreMap[o.id];
+            referencesCount++;
+            relatedOutcomes.push(o.id);
+          }
+        });
 
-        function getSectionSum(secId) {
-            const sec = currentAllocations[secId] || {};
-            return Object.values(sec).reduce((a, b) => a + b, 0);
-        }
-
-        function renderQuestions() {
-            const container = document.getElementById('questions-container');
-            container.innerHTML = '';
-
-            BELBIN_SECTIONS.forEach(sec => {
-                const secCard = document.createElement('div');
-                secCard.id = `section-card-${sec.id}`;
-                secCard.className = 'bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden';
-
-                let itemsHtml = '';
-                sec.items.forEach((item, idx) => {
-                    itemsHtml += `
-                        <div id="row-${sec.id}-${item.role}" class="p-3.5 sm:p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
-                            <div class="flex items-start gap-3">
-                                <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
-                                <p class="text-sm text-slate-800 font-medium leading-relaxed">${item.text}</p>
-                            </div>
-                            <div class="flex items-center justify-end gap-2 shrink-0">
-                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', -1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-600 font-bold flex items-center justify-center shadow-sm"><i class="fa-solid fa-minus text-xs"></i></button>
-                                <span id="val-${sec.id}-${item.role}" class="w-10 text-center font-black text-base text-slate-700">0</span>
-                                <button type="button" onclick="adjustPoint(${sec.id}, '${item.role}', 1)" class="w-9 h-9 rounded-xl bg-white border border-slate-300 text-slate-600 font-bold flex items-center justify-center shadow-sm"><i class="fa-solid fa-plus text-xs"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                secCard.innerHTML = `
-                    <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-                        <h3 class="font-extrabold text-slate-800 text-base">بخش ${sec.id}: ${sec.title}</h3>
-                        <div id="sec-badge-${sec.id}" class="px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-extrabold">باقی‌مانده: 10 امتیاز</div>
-                    </div>
-                    <div class="p-5 space-y-2.5">${itemsHtml}</div>
-                `;
-                container.appendChild(secCard);
-            });
-            updateProgressUI();
-        }
-
-        function adjustPoint(secId, roleId, delta) {
-            const currentVal = currentAllocations[secId][roleId];
-            const currentSum = getSectionSum(secId);
-            if (delta > 0 && currentSum >= 10) {
-                showToast(`در بخش ${secId} هر ۱۰ امتیاز تخصیص یافته است.`, 'warning');
-                return;
-            }
-            if (delta < 0 && currentVal <= 0) return;
-
-            currentAllocations[secId][roleId] = currentVal + delta;
-            updateSectionUI(secId);
-            updateProgressUI();
-        }
-
-        function updateSectionUI(secId) {
-            const sum = getSectionSum(secId);
-            const rem = 10 - sum;
-            Object.keys(currentAllocations[secId]).forEach(roleId => {
-                document.getElementById(`val-${secId}-${roleId}`).textContent = currentAllocations[secId][roleId];
-            });
-            const badgeEl = document.getElementById(`sec-badge-${secId}`);
-            if (rem === 0) {
-                badgeEl.className = 'px-3 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-extrabold';
-                badgeEl.textContent = 'تکمیل شد (۱۰/۱۰)';
-            } else {
-                badgeEl.className = 'px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-extrabold';
-                badgeEl.textContent = `باقی‌مانده: ${rem} امتیاز`;
-            }
-        }
-
-        function updateProgressUI() {
-            let total = 0, completed = 0;
-            BELBIN_SECTIONS.forEach(sec => {
-                const s = getSectionSum(sec.id);
-                total += s;
-                if (s === 10) completed++;
-            });
-            document.getElementById('completed-sections-count').textContent = completed;
-            document.getElementById('overall-points-text').textContent = `${total} از 70 امتیاز`;
-            document.getElementById('overall-progress-bar').style.width = `${Math.round((total/70)*100)}%`;
-        }
-
-        // LocalStorage DB Handling
-        function loadParticipants() {
-            const data = localStorage.getItem('pmpiran_belbin_db');
-            if (data) {
-                try { participants = JSON.parse(data); } catch(e) { participants = []; }
-            }
-            updateParticipantsBadge();
-        }
-
-        function saveParticipants() {
-            localStorage.setItem('pmpiran_belbin_db', JSON.stringify(participants));
-            updateParticipantsBadge();
-        }
-
-        function updateParticipantsBadge() {
-            document.getElementById('participants-badge').textContent = participants.length;
-        }
-
-        // Submit Test (Requires Name, Phone & Email)
-        function submitBelbinTest() {
-            const name = document.getElementById('student-name').value.trim();
-            const phone = document.getElementById('student-phone').value.trim();
-            const email = document.getElementById('student-email').value.trim();
-
-            if (!name || !phone || !email) {
-                showToast('لطفاً نام، شماره موبایل و ایمیل خود را به طور کامل وارد کنید.', 'error');
-                return;
-            }
-
-            for (const sec of BELBIN_SECTIONS) {
-                if (getSectionSum(sec.id) !== 10) {
-                    showToast(`بخش ${sec.id} کامل نشده است (باید دقیقاً ۱۰ امتیاز باشد).`, 'error');
-                    return;
-                }
-            }
-
-            const scores = {};
-            ROLE_ORDER.forEach(r => scores[r] = 0);
-            BELBIN_SECTIONS.forEach(sec => {
-                ROLE_ORDER.forEach(r => { scores[r] += (currentAllocations[sec.id][r] || 0); });
-            });
-
-            const categoryScores = {
-                ACTION: (scores.SH || 0) + (scores.IMP || 0) + (scores.CF || 0),
-                PEOPLE: (scores.CO || 0) + (scores.TW || 0) + (scores.RI || 0),
-                THOUGHT: (scores.PL || 0) + (scores.ME || 0) + (scores.SP || 0)
-            };
-
-            const sortedRoles = [...ROLE_ORDER].sort((a, b) => scores[b] - scores[a]);
-            const primaryRole = sortedRoles[0];
-            const secondaryRole = sortedRoles[1];
-
-            loadParticipants();
-
-            // Prevent duplicate based on email or phone
-            const existingIdx = participants.findIndex(p => p.email === email || p.phone === phone);
-            
-            const newRecord = {
-                id: existingIdx >= 0 ? participants[existingIdx].id : ('p_' + Date.now()),
-                name,
-                phone,
-                email,
-                timestamp: Date.now(),
-                scores,
-                categoryScores,
-                primaryRole,
-                secondaryRole,
-                isWorkshopMember: existingIdx >= 0 ? participants[existingIdx].isWorkshopMember : true,
-                group: existingIdx >= 0 ? participants[existingIdx].group : 1
-            };
-
-            if (existingIdx >= 0) {
-                participants[existingIdx] = newRecord;
-            } else {
-                participants.push(newRecord);
-            }
-
-            saveParticipants();
-            showStudentCompletionBanner(newRecord);
-            showToast('آزمون شما با موفقیت ثبت شد!', 'success');
-        }
-
-        // Personal Summary Card in Tab 1 (Shows Full Charts & Analysis as requested)
-        function showStudentCompletionBanner(rec) {
-            const banner = document.getElementById('student-completion-banner');
-            const pRole = BELBIN_ROLES[rec.primaryRole];
-            const sRole = BELBIN_ROLES[rec.secondaryRole];
-
-            const maxRoleScore = Math.max(25, ...Object.values(rec.scores));
-            const barsHtml = ROLE_ORDER.map(roleKey => {
-                const roleInfo = BELBIN_ROLES[roleKey];
-                const score = rec.scores[roleKey] || 0;
-                const widthPct = Math.round((score / maxRoleScore) * 100);
-                return `
-                    <div class="space-y-1">
-                        <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="font-bold text-slate-800">${roleInfo.name}</span>
-                            <span class="font-black text-sm text-slate-900">${score} امتیاز</span>
-                        </div>
-                        <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
-                            <div class="h-full rounded-full bar-transition" style="width: ${Math.max(widthPct, 2)}%; background-color: ${roleInfo.color}"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            banner.classList.remove('hidden');
-            banner.innerHTML = `
-                <div class="bg-emerald-600 text-white px-6 py-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-extrabold text-lg">${rec.name} عزیز، کارنامه تحلیلی کامل شما آماده است!</h3>
-                        <p class="text-xs text-emerald-100">اطلاعات شما در سامانه اساتید ثبت شد.</p>
-                    </div>
-                    <span class="px-3 py-1 rounded-full bg-white text-emerald-800 text-xs font-extrabold">نقش غالب: ${pRole.name}</span>
-                </div>
-                <div class="p-6 space-y-6 bg-emerald-50/40">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
-                            <div class="text-xs text-slate-500 font-bold">نقش اول (غالب):</div>
-                            <div class="text-base font-black text-pmp-navy mt-1">${pRole.name} (${rec.scores[rec.primaryRole]} امتیاز)</div>
-                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${pRole.desc}</p>
-                        </div>
-                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
-                            <div class="text-xs text-slate-500 font-bold">نقش دوم (پشتیبان):</div>
-                            <div class="text-base font-black text-pmp-navy mt-1">${sRole.name} (${rec.scores[rec.secondaryRole]} امتیاز)</div>
-                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${sRole.desc}</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl p-5 border border-slate-200 space-y-3">
-                        <h4 class="font-extrabold text-slate-800 text-sm">نمودار کامل امتیازات شما در ۹ نقش تیمی بلبین</h4>
-                        <div class="space-y-3">${barsHtml}</div>
-                    </div>
-                </div>
-            `;
-            banner.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Tab 2 Admin Dashboard Rendering (Shows summary table as requested)
-        function renderAdminDashboard() {
-            loadParticipants();
-            renderAdminDatabaseTable();
-            renderTwoGroupsBoard();
-        }
-
-        function renderAdminDatabaseTable() {
-            const tbody = document.getElementById('admin-database-tbody');
-            const search = document.getElementById('db-search-input')?.value.toLowerCase() || '';
-            
-            const filtered = participants.filter(p => p.name.toLowerCase().includes(search) || p.phone.includes(search) || p.email.toLowerCase().includes(search));
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400">هیچ رکوردی در دیتابیس یافت نشد.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map((p, idx) => {
-                const pRole = BELBIN_ROLES[p.primaryRole];
-                const sRole = BELBIN_ROLES[p.secondaryRole];
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-3.5 text-center font-bold text-slate-500">${idx + 1}</td>
-                        <td class="p-3.5 text-center">
-                            <input type="checkbox" ${p.isWorkshopMember !== false ? 'checked' : ''} onchange="toggleWorkshopMember('${p.id}', this.checked)" class="w-4 h-4 rounded text-pmp-royal focus:ring-pmp-royal cursor-pointer">
-                        </td>
-                        <td class="p-3.5 font-bold text-slate-900">${p.name}</td>
-                        <td class="p-3.5 font-mono text-slate-600" dir="ltr">${p.phone}</td>
-                        <td class="p-3.5 font-mono text-slate-600" dir="ltr">${p.email}</td>
-                        <td class="p-3.5"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${pRole.bgLight} ${pRole.textCol}">${pRole.name}</span></td>
-                        <td class="p-3.5 text-slate-600">${sRole.name}</td>
-                        <td class="p-3.5 text-center">
-                            <button onclick="toggleGroup('${p.id}')" class="px-2.5 py-1 rounded text-xs font-bold border ${p.group === 1 ? 'bg-sky-100 text-sky-800 border-sky-300' : 'bg-amber-100 text-amber-800 border-amber-300'}">
-                                گروه ${p.group === 1 ? 'الف' : 'ب'} <i class="fa-solid fa-repeat mr-1 text-[10px]"></i>
-                            </button>
-                        </td>
-                        <td class="p-3.5 text-center">
-                            <button onclick="deleteParticipant('${p.id}')" class="text-slate-400 hover:text-rose-600 transition" title="حذف">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function toggleWorkshopMember(id, isChecked) {
-            const p = participants.find(item => item.id === id);
-            if (p) {
-                p.isWorkshopMember = isChecked;
-                saveParticipants();
-                renderTwoGroupsBoard();
-            }
-        }
-
-        function toggleGroup(id) {
-            const p = participants.find(item => item.id === id);
-            if (p) {
-                p.group = p.group === 1 ? 2 : 1;
-                saveParticipants();
-                renderTwoGroupsBoard();
-            }
-        }
-
-        function deleteParticipant(id) {
-            participants = participants.filter(item => item.id !== id);
-            saveParticipants();
-            renderAdminDashboard();
-            showToast('رکورد با موفقیت حذف شد.', 'info');
-        }
-
-        // Auto Divide Only Checked Workshop Members into 2 Balanced Groups
-        function autoDivideIntoTwoGroups() {
-            const activeMembers = participants.filter(p => p.isWorkshopMember !== false);
-            if (activeMembers.length < 2) {
-                showToast('برای تقسیم‌بندی تیم‌ها باید حداقل ۲ عضو تیک‌خورده در لیست داشته باشید.', 'warning');
-                return;
-            }
-
-            const sorted = [...activeMembers].sort((a, b) => b.scores[b.primaryRole] - a.scores[a.primaryRole]);
-            let g1Count = 0, g2Count = 0;
-            const maxPerGroup = Math.ceil(sorted.length / 2);
-
-            sorted.forEach(p => {
-                if (g1Count >= maxPerGroup) {
-                    p.group = 2; g2Count++;
-                } else if (g2Count >= maxPerGroup) {
-                    p.group = 1; g1Count++;
-                } else {
-                    if (g1Count <= g2Count) { p.group = 1; g1Count++; }
-                    else { p.group = 2; g2Count++; }
-                }
-            });
-
-            saveParticipants();
-            renderAdminDashboard();
-            showToast('اعضای تیک‌خورده با موفقیت در ۲ تیم متوازن سازماندهی شدند!', 'success');
-        }
-
-        function renderTwoGroupsBoard() {
-            loadParticipants();
-            const activeMembers = participants.filter(p => p.isWorkshopMember !== false);
-            const g1 = activeMembers.filter(p => p.group === 1);
-            const g2 = activeMembers.filter(p => p.group === 2);
-
-            document.getElementById('group-1-count').textContent = `${g1.length} عضو`;
-            document.getElementById('group-2-count').textContent = `${g2.length} عضو`;
-
-            renderGroupColumn(g1, 'group-1-balance-box', 'group-1-members', 'الف');
-            renderGroupColumn(g2, 'group-2-balance-box', 'group-2-members', 'ب');
-        }
-
-        function renderGroupColumn(members, balanceBoxId, membersBoxId, groupName) {
-            const balanceBox = document.getElementById(balanceBoxId);
-            const membersBox = document.getElementById(membersBoxId);
-
-            if (members.length === 0) {
-                balanceBox.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">عضوی در این تیم انتخاب نشده است.</div>`;
-                membersBox.innerHTML = '';
-                return;
-            }
-
-            let sumAction = 0, sumPeople = 0, sumThought = 0;
-            members.forEach(m => {
-                sumAction += m.categoryScores.ACTION;
-                sumPeople += m.categoryScores.PEOPLE;
-                sumThought += m.categoryScores.THOUGHT;
-            });
-            const total = Math.max(1, sumAction + sumPeople + sumThought);
-            const actPct = Math.round((sumAction / total) * 100);
-            const peoPct = Math.round((sumPeople / total) * 100);
-            const thoPct = Math.max(0, 100 - actPct - peoPct);
-
-            balanceBox.innerHTML = `
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-xs font-bold text-slate-700">
-                        <span>توازن تیم ${groupName}:</span>
-                        <div class="flex items-center gap-2 text-[10px]">
-                            <span class="text-amber-600">عمل‌گرا: ${actPct}%</span>
-                            <span class="text-emerald-600">ارتباط‌گرا: ${peoPct}%</span>
-                            <span class="text-sky-600">تفکرمحور: ${thoPct}%</span>
-                        </div>
-                    </div>
-                    <div class="w-full h-2.5 rounded-full overflow-hidden flex bg-slate-100">
-                        <div class="h-full bg-amber-500" style="width: ${actPct}%"></div>
-                        <div class="h-full bg-emerald-500" style="width: ${peoPct}%"></div>
-                        <div class="h-full bg-sky-600" style="width: ${thoPct}%"></div>
-                    </div>
-                </div>
-            `;
-
-            membersBox.innerHTML = members.map((m, idx) => {
-                const pRole = BELBIN_ROLES[m.primaryRole];
-                return `
-                    <div class="bg-white rounded-xl p-3 border border-slate-200 flex items-center justify-between gap-3 shadow-sm">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-6 h-6 rounded bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">${idx + 1}</span>
-                            <div>
-                                <div class="font-bold text-slate-800 text-xs">${m.name}</div>
-                                <div class="text-[10px] text-slate-500">${pRole.name}</div>
-                            </div>
-                        </div>
-                        <button onclick="toggleGroup('${m.id}')" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-[11px] font-bold">جابه‌جایی</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        window.onload = function () {
-            initFormAllocations();
-            renderQuestions();
-            loadParticipants();
+        return {
+          id: service.id,
+          cat: service.cat,
+          catName: service.catName,
+          titleFa: service.titleFa,
+          titleEn: service.titleEn,
+          rawSum: rawSum,
+          referencesCount: referencesCount,
+          relatedOutcomes: relatedOutcomes,
+          // Calculate max possible for normalization:
+          maxPossible: referencesCount * 15,
+          minPossible: referencesCount * 3
         };
-    </script>
+      });
+
+      // Find max raw score among all services to scale 1-100 realistically, or scale based on max potential
+      const highestRawSum = Math.max(...serviceAggregates.map(s => s.rawSum));
+      const lowestRawSum = Math.min(...serviceAggregates.map(s => s.rawSum));
+
+      return serviceAggregates.map(s => {
+        // Normalized score 1 to 100
+        let normalizedScore = 0;
+        if (highestRawSum > lowestRawSum) {
+          normalizedScore = Math.round(1 + ((s.rawSum - lowestRawSum) / (highestRawSum - lowestRawSum)) * 99);
+        } else {
+          normalizedScore = 50;
+        }
+
+        return {
+          ...s,
+          normalizedScore: normalizedScore
+        };
+      }).sort((a, b) => b.normalizedScore - a.normalizedScore);
+    }
+
+    function renderServicesNeedPage() {
+      const servicesRanked = calculateServicesNeed();
+      const tbody = document.getElementById("services-table-body");
+      tbody.innerHTML = "";
+
+      servicesRanked.forEach((s, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+        tr.innerHTML = `
+          <td class="p-3.5 text-center font-bold">
+            ${idx < 3 ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-full ${idx === 0 ? 'bg-indigo-600 text-white' : idx === 1 ? 'bg-indigo-400 text-white' : 'bg-indigo-300 text-indigo-900'} text-xs font-black shadow-sm">${idx + 1}</span>` : idx + 1}
+          </td>
+          <td class="p-3.5 text-center font-mono text-xs font-bold text-slate-500">Service ${s.id}</td>
+          <td class="p-3.5">
+            <div class="font-bold text-slate-800 text-sm">${s.titleFa}</div>
+            <div class="text-xs text-slate-400 font-mono">${s.titleEn}</div>
+          </td>
+          <td class="p-3.5 text-center">
+            <span class="text-xs px-2.5 py-1 rounded-lg font-medium ${
+              s.cat === 'strategic' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
+              s.cat === 'tactical' ? 'bg-sky-100 text-sky-800 border border-sky-200' :
+              'bg-amber-100 text-amber-800 border border-amber-200'
+            }">
+              ${s.catName}
+            </span>
+          </td>
+          <td class="p-3.5 text-center font-mono text-xs text-slate-600 font-bold">
+            ${s.referencesCount} دستاورد
+          </td>
+          <td class="p-3.5 text-center font-mono text-sm text-slate-700 font-bold">
+            ${s.rawSum}
+          </td>
+          <td class="p-3.5 text-center">
+            <span class="font-mono text-base font-black ${
+              s.normalizedScore >= 75 ? 'text-rose-600' :
+              s.normalizedScore >= 50 ? 'text-orange-600' :
+              s.normalizedScore >= 30 ? 'text-amber-600' : 'text-emerald-600'
+            }">
+              ${s.normalizedScore}
+            </span>
+            <span class="text-xs text-slate-400">/ ۱۰۰</span>
+          </td>
+          <td class="p-3.5">
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="h-3 rounded-full transition-all duration-300 ${
+                s.normalizedScore >= 75 ? 'bg-rose-600' :
+                s.normalizedScore >= 50 ? 'bg-orange-500' :
+                s.normalizedScore >= 30 ? 'bg-amber-400' : 'bg-emerald-500'
+              }" style="width: ${s.normalizedScore}%"></div>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      renderServicesNeedChart(servicesRanked);
+    }
+
+    function renderServicesNeedChart(rankedServices) {
+      const ctx = document.getElementById("servicesNeedChart");
+      if (!ctx) return;
+
+      if (servicesNeedChartInstance) {
+        servicesNeedChartInstance.destroy();
+      }
+
+      servicesNeedChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: rankedServices.map(s => s.titleFa),
+          datasets: [{
+            label: 'شاخص نیاز به استقرار سرویس (مقیاس ۱ تا ۱۰۰)',
+            data: rankedServices.map(s => s.normalizedScore),
+            backgroundColor: rankedServices.map(s => {
+              if (s.normalizedScore >= 75) return '#e11d48';
+              if (s.normalizedScore >= 50) return '#f97316';
+              if (s.normalizedScore >= 30) return '#eab308';
+              return '#10b981';
+            }),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              rtl: true,
+              callbacks: {
+                label: (ctx) => ` امتیاز اولویت سرویس: ${ctx.raw} از ۱۰۰`
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              grid: { color: '#f1f5f9' },
+              ticks: { font: { family: 'Vazirmatn' } }
+            },
+            x: {
+              ticks: {
+                font: { family: 'Vazirmatn', size: 10 },
+                maxRotation: 65,
+                minRotation: 45
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function exportServicesCSV() {
+      const ranked = calculateServicesNeed();
+      let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+      csvContent += "رتبه نیاز,کد سرویس,عنوان فارسی,عنوان انگلیسی,دسته,تعداد ارجاع,مجموع امتیاز خام,امتیاز نهایی (1 تا 100)\n";
+      ranked.forEach((s, i) => {
+        csvContent += `${i + 1},Service ${s.id},"${s.titleFa}","${s.titleEn}",${s.catName},${s.referencesCount},${s.rawSum},${s.normalizedScore}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "PMO_Services_Need_Ranking.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("فایل CSV با موفقیت دانلود شد.");
+    }
+
+    /* -------------------------------------------------------------
+       9. PAGE 4: 26 SERVICES MATURITY ASSESSMENT & EXECUTIVE DASHBOARD
+       Appendix X3 Formulas:
+       Total Points Strategic / (7 * 5) * 100
+       Total Points Tactical / (5 * 5) * 100
+       Total Points Operational / (14 * 5) * 100
+    ------------------------------------------------------------- */
+    function renderMaturityPage() {
+      // Sort services in accordion by need priority from Step 3!
+      const rankedServices = calculateServicesNeed();
+      const accordion = document.getElementById("services-maturity-accordion");
+      accordion.innerHTML = "";
+
+      rankedServices.forEach((serviceNeedItem, rankIndex) => {
+        const fullService = SERVICES.find(s => s.id === serviceNeedItem.id);
+        const curMaturity = serviceMaturity[fullService.id] || { current: 1, target: 3 };
+
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm transition hover:border-slate-300";
+
+        card.innerHTML = `
+          <!-- Accordion Header (Clickable to toggle body) -->
+          <div class="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 cursor-pointer bg-slate-50/70 hover:bg-slate-100/90 transition select-none" onclick="toggleServiceCard(${fullService.id})">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                ${rankIndex + 1}
+              </span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="font-bold text-slate-800 text-base">${fullService.titleFa}</h4>
+                  <span class="text-xs px-2 py-0.5 rounded font-mono ${
+                    fullService.cat === 'strategic' ? 'bg-purple-100 text-purple-700' :
+                    fullService.cat === 'tactical' ? 'bg-sky-100 text-sky-700' : 'bg-amber-100 text-amber-700'
+                  }">${fullService.catName}</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">Service ${fullService.id}: ${fullService.titleEn}</span>
+              </div>
+            </div>
+
+            <!-- Current vs Desired Mini Status & Toggle Arrow -->
+            <div class="flex items-center gap-3 text-xs">
+              <div class="flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1.5 rounded-xl font-medium">
+                <span>فعلی:</span>
+                <span class="font-bold font-mono text-sm" id="badge-curr-${fullService.id}">سطح ${curMaturity.current}</span>
+              </div>
+              <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-xl font-medium">
+                <span>مطلوب:</span>
+                <span class="font-bold font-mono text-sm" id="badge-targ-${fullService.id}">سطح ${curMaturity.target}</span>
+              </div>
+              <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-indigo-600 shadow-xs transition-colors">
+                <svg class="w-4 h-4 transform transition-transform duration-300 rotate-0" id="icon-acc-${fullService.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accordion Body (Initially Hidden) -->
+          <div id="acc-body-${fullService.id}" class="hidden p-5 border-t border-slate-100 space-y-4 bg-white transition-all duration-300">
+            <!-- Field 1: Service Description with Independent Toggle Button -->
+            <div class="bg-indigo-50/70 rounded-xl border border-indigo-100/90 overflow-hidden transition-all shadow-xs" id="desc-box-${fullService.id}">
+              <div class="p-3.5 flex items-center justify-between bg-indigo-100/50 border-b border-indigo-100">
+                <span class="font-bold text-indigo-900 text-xs sm:text-sm flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  فیلد ۱ • تعریف و شرح خدمات PMO
+                </span>
+                <button
+                  type="button"
+                  onclick="toggleServiceDesc(${fullService.id})"
+                  id="btn-toggle-desc-${fullService.id}"
+                  class="text-xs bg-white hover:bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1 shadow-xs"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                  <span>بستن و مخفی‌سازی شرح</span>
+                </button>
+              </div>
+              <div id="desc-text-wrapper-${fullService.id}" class="p-4 text-indigo-950 text-xs sm:text-sm leading-relaxed">
+                ${fullService.desc}
+              </div>
+            </div>
+
+            <!-- Fields 2 to 6: The 5 Maturity Levels -->
+            <div class="space-y-2.5 pt-1">
+              <span class="text-xs font-bold text-slate-600 block mb-1">فیلدهای ۲ تا ۶ • انتخاب وضعیت فعلی (آبی) و وضعیت مطلوب مورد توافق (سبز):</span>
+              ${fullService.levels.map((lvlText, idx) => {
+                const lvlNum = idx + 1;
+                const isCurr = curMaturity.current === lvlNum;
+                const isTarg = curMaturity.target === lvlNum;
+
+                return `
+                  <div class="p-3.5 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 ${
+                    isCurr && isTarg ? 'bg-gradient-to-r from-blue-50 to-emerald-50 border-indigo-300' :
+                    isCurr ? 'bg-blue-50/80 border-blue-400 shadow-sm' :
+                    isTarg ? 'bg-emerald-50/80 border-emerald-400 shadow-sm' :
+                    'bg-slate-50 border-slate-200/80 hover:bg-slate-100/60'
+                  }" id="level-row-${fullService.id}-${lvlNum}">
+                    <div class="flex items-start gap-2.5 flex-1">
+                      <span class="w-6 h-6 rounded-lg bg-white border border-slate-300 font-bold text-xs flex items-center justify-center shrink-0 text-slate-700">
+                        ${lvlNum}
+                      </span>
+                      <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                        ${lvlText}
+                      </p>
+                    </div>
+
+                    <!-- Dual Selection Controls (Current vs Desired) -->
+                    <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
+                      <button
+                        type="button"
+                        onclick="setServiceMaturity(${fullService.id}, 'current', ${lvlNum})"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                          isCurr ? 'bg-blue-600 text-white shadow' : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
+                        }"
+                      >
+                        <span class="w-2 h-2 rounded-full ${isCurr ? 'bg-white' : 'bg-blue-600'}"></span>
+                        سطح فعلی
+                      </button>
+                      <button
+                        type="button"
+                        onclick="setServiceMaturity(${fullService.id}, 'target', ${lvlNum})"
+                        class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                          isTarg ? 'bg-emerald-600 text-white shadow' : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'
+                        }"
+                      >
+                        <span class="w-2 h-2 rounded-full ${isTarg ? 'bg-white' : 'bg-emerald-600'}"></span>
+                        سطح مطلوب
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+
+        accordion.appendChild(card);
+      });
+
+      updateManagementDashboard();
+    }
+
+    // Toggle entire service card
+    function toggleServiceCard(serviceId) {
+      const body = document.getElementById(`acc-body-${serviceId}`);
+      const icon = document.getElementById(`icon-acc-${serviceId}`);
+      if (body) {
+        const isHidden = body.classList.contains("hidden");
+        if (isHidden) {
+          body.classList.remove("hidden");
+          if (icon) icon.classList.add("rotate-180");
+        } else {
+          body.classList.add("hidden");
+          if (icon) icon.classList.remove("rotate-180");
+        }
+      }
+    }
+
+    // Toggle description text box inside Field 1
+    function toggleServiceDesc(serviceId) {
+      const textWrapper = document.getElementById(`desc-text-wrapper-${serviceId}`);
+      const btn = document.getElementById(`btn-toggle-desc-${serviceId}`);
+      if (!textWrapper || !btn) return;
+
+      const isHidden = textWrapper.classList.contains("hidden");
+      if (isHidden) {
+        textWrapper.classList.remove("hidden");
+        btn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+          <span>بستن و مخفی‌سازی شرح</span>
+        `;
+      } else {
+        textWrapper.classList.add("hidden");
+        btn.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          <span>مشاهده مجدد شرح سرویس</span>
+        `;
+      }
+    }
+
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.toggle("hidden");
+      }
+    }
+
+    function setServiceMaturity(serviceId, type, level) {
+      if (!serviceMaturity[serviceId]) {
+        serviceMaturity[serviceId] = { current: 1, target: 3 };
+      }
+      serviceMaturity[serviceId][type] = level;
+
+      saveStateToStorage();
+
+      // Refresh badges on card header
+      const cur = serviceMaturity[serviceId].current;
+      const targ = serviceMaturity[serviceId].target;
+
+      const badgeCurr = document.getElementById(`badge-curr-${serviceId}`);
+      if (badgeCurr) badgeCurr.textContent = `سطح ${cur}`;
+
+      const badgeTarg = document.getElementById(`badge-targ-${serviceId}`);
+      if (badgeTarg) badgeTarg.textContent = `سطح ${targ}`;
+
+      // Re-highlight the 5 level rows
+      for (let lvl = 1; lvl <= 5; lvl++) {
+        const row = document.getElementById(`level-row-${serviceId}-${lvl}`);
+        if (!row) continue;
+
+        const isCurr = cur === lvl;
+        const isTarg = targ === lvl;
+
+        if (isCurr && isTarg) {
+          row.className = "p-3.5 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gradient-to-r from-blue-50 to-emerald-50 border-indigo-300";
+        } else if (isCurr) {
+          row.className = "p-3.5 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 bg-blue-50/80 border-blue-400 shadow-sm";
+        } else if (isTarg) {
+          row.className = "p-3.5 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 bg-emerald-50/80 border-emerald-400 shadow-sm";
+        } else {
+          row.className = "p-3.5 rounded-xl border transition flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 border-slate-200/80 hover:bg-slate-100/60";
+        }
+
+        // update buttons in row
+        const btns = row.querySelectorAll("button");
+        if (btns.length === 2) {
+          btns[0].className = `px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${isCurr ? 'bg-blue-600 text-white shadow' : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'}`;
+          btns[1].className = `px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 ${isTarg ? 'bg-emerald-600 text-white shadow' : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'}`;
+        }
+      }
+
+      updateManagementDashboard();
+    }
+
+    /* -------------------------------------------------------------
+       10. DASHBOARD METRICS CALCULATION (Appendix X3 Rules)
+       Strategic: 7 services * 5 = 35 max points
+       Tactical: 5 services * 5 = 25 max points
+       Operational: 14 services * 5 = 70 max points
+       Total PMO: 26 * 5 = 130 max points
+    ------------------------------------------------------------- */
+    function updateManagementDashboard() {
+      let stratCurrSum = 0, stratTargSum = 0;
+      let tactCurrSum = 0, tactTargSum = 0;
+      let operCurrSum = 0, operTargSum = 0;
+
+      SERVICES.forEach(s => {
+        const mat = serviceMaturity[s.id] || { current: 1, target: 3 };
+        if (s.cat === 'strategic') {
+          stratCurrSum += mat.current;
+          stratTargSum += mat.target;
+        } else if (s.cat === 'tactical') {
+          tactCurrSum += mat.current;
+          tactTargSum += mat.target;
+        } else if (s.cat === 'operational') {
+          operCurrSum += mat.current;
+          operTargSum += mat.target;
+        }
+      });
+
+      const stratCurrPct = Math.round((stratCurrSum / 35) * 100);
+      const stratTargPct = Math.round((stratTargSum / 35) * 100);
+      const stratGapPct = stratTargPct - stratCurrPct;
+
+      const tactCurrPct = Math.round((tactCurrSum / 25) * 100);
+      const tactTargPct = Math.round((tactTargSum / 25) * 100);
+      const tactGapPct = tactTargPct - tactCurrPct;
+
+      const operCurrPct = Math.round((operCurrSum / 70) * 100);
+      const operTargPct = Math.round((operTargSum / 70) * 100);
+      const operGapPct = operTargPct - operCurrPct;
+
+      const totalCurrSum = stratCurrSum + tactCurrSum + operCurrSum;
+      const totalTargSum = stratTargSum + tactTargSum + operTargSum;
+      const overallCurrPct = Math.round((totalCurrSum / 130) * 100);
+      const overallTargPct = Math.round((totalTargSum / 130) * 100);
+      const overallGapPct = overallTargPct - overallCurrPct;
+
+      // Update Strategic Card
+      document.getElementById("kpi-strat-curr-text").textContent = `${stratCurrPct}٪ (${stratCurrSum} از ۳۵)`;
+      document.getElementById("kpi-strat-curr-bar").style.width = `${stratCurrPct}%`;
+      document.getElementById("kpi-strat-targ-text").textContent = `${stratTargPct}٪ (${stratTargSum} از ۳۵)`;
+      document.getElementById("kpi-strat-targ-bar").style.width = `${stratTargPct}%`;
+      document.getElementById("kpi-strat-gap").textContent = `${stratGapPct > 0 ? '+' : ''}${stratGapPct}٪ شکاف`;
+
+      // Update Tactical Card
+      document.getElementById("kpi-tact-curr-text").textContent = `${tactCurrPct}٪ (${tactCurrSum} از ۲۵)`;
+      document.getElementById("kpi-tact-curr-bar").style.width = `${tactCurrPct}%`;
+      document.getElementById("kpi-tact-targ-text").textContent = `${tactTargPct}٪ (${tactTargSum} از ۲۵)`;
+      document.getElementById("kpi-tact-targ-bar").style.width = `${tactTargPct}%`;
+      document.getElementById("kpi-tact-gap").textContent = `${tactGapPct > 0 ? '+' : ''}${tactGapPct}٪ شکاف`;
+
+      // Update Operational Card
+      document.getElementById("kpi-oper-curr-text").textContent = `${operCurrPct}٪ (${operCurrSum} از ۷۰)`;
+      document.getElementById("kpi-oper-curr-bar").style.width = `${operCurrPct}%`;
+      document.getElementById("kpi-oper-targ-text").textContent = `${operTargPct}٪ (${operTargSum} از ۷۰)`;
+      document.getElementById("kpi-oper-targ-bar").style.width = `${operTargPct}%`;
+      document.getElementById("kpi-oper-gap").textContent = `${operGapPct > 0 ? '+' : ''}${operGapPct}٪ شکاف`;
+
+      // Update Overall
+      document.getElementById("overall-curr-pct").textContent = `${overallCurrPct}٪`;
+      document.getElementById("overall-targ-pct").textContent = `${overallTargPct}٪`;
+      document.getElementById("overall-gap-pct").textContent = `${overallGapPct}٪ رشد نیاز`;
+
+      // Render Charts
+      renderMaturityDomainChart([stratCurrPct, tactCurrPct, operCurrPct], [stratTargPct, tactTargPct, operTargPct]);
+      renderAllServicesMaturityChart();
+    }
+
+    function renderMaturityDomainChart(currData, targData) {
+      const ctx = document.getElementById("maturityDomainChart");
+      if (!ctx) return;
+
+      if (maturityDomainChartInstance) {
+        maturityDomainChartInstance.destroy();
+      }
+
+      maturityDomainChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['خدمات استراتژیک', 'خدمات تاکتیکی', 'خدمات عملیاتی'],
+          datasets: [
+            {
+              label: 'بلوغ فعلی (Current %)',
+              data: currData,
+              backgroundColor: 'rgba(59, 130, 246, 0.35)',
+              borderColor: '#3b82f6',
+              pointBackgroundColor: '#3b82f6',
+              borderWidth: 2
+            },
+            {
+              label: 'بلوغ مطلوب (Target %)',
+              data: targData,
+              backgroundColor: 'rgba(52, 211, 153, 0.35)',
+              borderColor: '#34d399',
+              pointBackgroundColor: '#34d399',
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e2e8f0', font: { family: 'Vazirmatn' } }
+            },
+            tooltip: { rtl: true }
+          },
+          scales: {
+            r: {
+              min: 0,
+              max: 100,
+              ticks: { display: false },
+              grid: { color: '#334155' },
+              angleLines: { color: '#334155' },
+              pointLabels: {
+                color: '#cbd5e1',
+                font: { family: 'Vazirmatn', size: 12, weight: 'bold' }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderAllServicesMaturityChart() {
+      const ctx = document.getElementById("allServicesMaturityChart");
+      if (!ctx) return;
+
+      if (allServicesMaturityChartInstance) {
+        allServicesMaturityChartInstance.destroy();
+      }
+
+      // Ordered by need priority from Step 3
+      const rankedServices = calculateServicesNeed();
+
+      const labels = rankedServices.map(s => s.titleFa);
+      const currLevels = rankedServices.map(s => (serviceMaturity[s.id] || { current: 1 }).current);
+      const targLevels = rankedServices.map(s => (serviceMaturity[s.id] || { target: 3 }).target);
+
+      allServicesMaturityChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'سطح فعلی (۱ تا ۵)',
+              data: currLevels,
+              backgroundColor: 'rgba(59, 130, 246, 0.85)',
+              borderRadius: 6
+            },
+            {
+              label: 'سطح مطلوب (۱ تا ۵)',
+              data: targLevels,
+              backgroundColor: 'rgba(52, 211, 153, 0.85)',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e2e8f0', font: { family: 'Vazirmatn' } }
+            },
+            tooltip: { rtl: true }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: { stepSize: 1, color: '#94a3b8', font: { family: 'Vazirmatn' } },
+              grid: { color: '#334155' }
+            },
+            x: {
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Vazirmatn', size: 10 },
+                maxRotation: 60,
+                minRotation: 45
+              },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    /* -------------------------------------------------------------
+       11. QUICK ACTION CONTROLS (Demo Fill, Reset, Consensus)
+    ------------------------------------------------------------- */
+    function setupQuickButtons() {
+      // Demo fill 90 questions with realistic varied pain points
+      document.getElementById("btn-demo-fill").addEventListener("click", () => {
+        for (let i = 1; i <= 90; i++) {
+          // generate realistic survey distribution with some critical pain points (4, 5) and moderate (2, 3)
+          const seed = (i * 7 + 13) % 10;
+          if (seed > 6) userRatings[i] = 5;
+          else if (seed > 3) userRatings[i] = 4;
+          else if (seed > 1) userRatings[i] = 3;
+          else userRatings[i] = 2;
+        }
+
+        saveStateToStorage();
+        renderQuestionsPage();
+        updateAllCalculations();
+        showToast("۹۰ گویه تشخیصی با داده‌های واقعی نمونه بارگذاری شد.");
+      });
+
+      // Reset
+      document.getElementById("btn-reset").addEventListener("click", () => {
+        for (let i = 1; i <= 90; i++) userRatings[i] = 1;
+        SERVICES.forEach(s => serviceMaturity[s.id] = { current: 1, target: 3 });
+        saveStateToStorage();
+        renderQuestionsPage();
+        updateAllCalculations();
+        showToast("تمام امتیازها و تنظیمات ریست شد.", "🔄");
+      });
+
+      // Quick Maturity fill for consensus meeting demo
+      document.getElementById("btn-quick-maturity").addEventListener("click", () => {
+        SERVICES.forEach(s => {
+          // Current: between 1 and 3, Target: between 3 and 5
+          const curVal = s.cat === 'strategic' ? 2 : s.cat === 'tactical' ? 2 : 1;
+          const tarVal = s.cat === 'strategic' ? 4 : s.cat === 'tactical' ? 4 : 3;
+          serviceMaturity[s.id] = { current: curVal, target: tarVal };
+        });
+        saveStateToStorage();
+        renderMaturityPage();
+        showToast("سطوح بلوغ پیشنهادی (اجماع کارگروه) اعمال شد.");
+      });
+    }
+
+    function updateAllCalculations() {
+      updateProgressBar();
+      // If user currently on other tabs, will update when viewed
+    }
+  </script>
 </body>
 </html>
